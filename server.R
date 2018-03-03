@@ -360,8 +360,7 @@ function(input, output, session) {
     showModal(
       modalDialog(
         title = "Gompertz Model",
-        withMathJax(),
-        includeHTML(file.path("text", "gompertz.html")),
+        withMathJax(includeHTML(file.path("text", "gompertz.html"))),
         easyClose = TRUE
       )
     )

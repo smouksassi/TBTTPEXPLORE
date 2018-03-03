@@ -1,10 +1,8 @@
 ---
-title: ""
-output: html_document
-mathjax: default
+output: html_fragment
 ---
 
-###1- Gompertz Model Definition, Properties and Equations:
+### 1- Gompertz Model Definition, Properties and Equations:
 This page allows the user to explore the TTP curve over time using the modeled Gompertz equation.
 $${\text{TTP}(t)=Offset +\alpha*\exp\left[-\beta*\exp\left(-\gamma*\text{Time}\right)\right]}$$
 Where $Offset$ is the theoretical lower asymptote, $\alpha$ is the upper asymptote, $\beta$ is a shape parameter controlling where the curve start and $\gamma$ is a shape parameter controlling the steepness of the curve. On this curve we are interested in several quantities of interest illustrated in this plot:
