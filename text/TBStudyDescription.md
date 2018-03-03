@@ -1,11 +1,4 @@
----
-title: ""
-output: html_document
----
-
-
- 
-###List of Studies in the Database 
+### List of Studies in the Database 
 
 The interactive interface (R-Shiny application) was developed based on the patient-level TTP data collected in 11 clinical studies, which included a total of 30 treatments (dose-ranging, monotherapy and combination therapy) administered to patients with TB. 
 

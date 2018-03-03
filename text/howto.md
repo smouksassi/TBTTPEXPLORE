@@ -1,16 +1,9 @@
----
-title: ""
-output: html_document
----
-
-
- 
-###1- How to Perform a Comparison Between Two Treatments in the Database
+### 1- How to Perform a Comparison Between Two Treatments in the Database
 
 The application allows the user to perform a comparison of longitudinal TTP between a selected reference and test treatments. TTP data is represented using boxplots.
 
 <div style="text-align: center;">
-![](./boxplotpic.png){ width=30% }
+  <img src="./boxplotpic.png" width="30%" />
 </div>
 
 The user has the choice of presenting longitudinal TTP data of two treatments side-by-side (Example 1) or using the overlay option by clicking on the "Overlay data" check box (Example 2). Numerical values (median and sample size) of TTP can be selected by clicking on the "Show median" and "Show sample size" check boxes (Examples 3 and 4, respectively).
@@ -37,25 +30,15 @@ Example 6: Show time in days instead of weeks which is the default
 
 The above options could be used separate or combined.
 
-###2- How to Perform a Comparison Between a Treatment in the Database and a User-Defined Treatment
+### 2- How to Perform a Comparison Between a Treatment in the Database and a User-Defined Treatment
 
 The application also allows the user to upload TTP data collected in new clinical trials and perform a comparison to any reference treatment.  The user can upload TTP data by selecting the "Upload TTP data file for test treatment" check box.
 ![](./uploadpic.jpg)
 
 A browse button will open a navigation window for the user to select the file to be uploaded.  The uploaded file must be in a comma-separated values (CSV) format with the following headers. 
 
-```{r xtable, echo=FALSE}
-knitr::kable (
-  data.frame(ID= "ID_XYZ",TIMEDAYS= " ",TTP= " " ,WEEK=" ", WEEKCAT=" " , HIV= " ", CAVITATION=" ",CD4=" ",
-             TRTDOSE=" ", TRT=" ", AGE=" ", SEX=" ", RACE=" ", WT=" ", STUDY=" " )
-  
-)
+**ID TIMEDAYS TTP WEEK WEEKCAT HIV CAVITATION CD4 TRTDOSE TRT AGE SEX RACE WT STUDY**
 
-```
-
-```        
-
-```
 Definition of Variables:
 
 * "#ID" = Subject ID (string)
@@ -77,7 +60,7 @@ Definition of Variables:
 The current version of the application reads the column "TTP", "TIMEDAYS", "WEEK" and "TRTDOSE" for plotting purposes.  Reading of other fields will be implemented in future versions. 
 Missing information can be entered as "." in any field.  
 
-###3- Interpretation of results
+### 3- Interpretation of results
 An example of how to interpret results is provided based on the data presented in Example 7 below. 
 The increase of pyrazinamide dose in the HPZE treatment from 10 mg (red line) to 20 mg (blue line) resulted in a faster rate of TTP progression to negative growth (E.g., at week 4, the TTP rates were 21.5 and 27.5 days for the 10 mg and 20 mg doses, respectively).
 

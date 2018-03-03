@@ -16,7 +16,7 @@ tagList(
       icon = icon("info"),
       class = "fade in",
 
-      includeHTML(file.path("text", "TBStudyDescription.html"))
+      includeMarkdown(file.path("text", "TBStudyDescription.md"))
     ),
 
     tabPanel(
@@ -25,7 +25,7 @@ tagList(
       icon = icon("info"),
       class = "fade in",
 
-      includeHTML(file.path("text", "howto.html"))
+      includeMarkdown(file.path("text", "howto.md"))
     ),
 
     tabPanel(
@@ -194,7 +194,6 @@ tagList(
       class = "fade in",
 
       fluidPage(
-        withMathJax(),
         column(
           12,
           bsButton("helpmodal", "Model Details and how to use this Page", style =
