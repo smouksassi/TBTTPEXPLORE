@@ -5,6 +5,9 @@ library(shinyBS)
 library(htmltools)
 library(dplyr)
 
+source("modules/plots_tab.R")
+source("modules/gompertz_tab.R")
+
 # Given a week range, figure out the human-friendly category name
 # [1,2) becomes simply 1
 # [11,13) becomes 11-12
