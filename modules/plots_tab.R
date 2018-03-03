@@ -1,6 +1,10 @@
 # Module for the plots tab in the TTP app
 
-plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
+source("modules/plots_helpers.R")
+
+plots_tab_module_ui <- function(id,
+                                ref_drug_list_all_ = ref_drug_list_all,
+                                study_list_ = study_list) {
   ns <- NS(id)
 
   tagList(
@@ -160,7 +164,8 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
   )
 }
 
-plots_tab_module <- function(input, output, session, ttp_data_) {
+plots_tab_module <- function(input, output, session,
+                             ttp_data_ = ttp_data) {
   ref_data <- reactive({
     # If a specific study is requested, subset by study
     if (input$subset_by_study != "") {

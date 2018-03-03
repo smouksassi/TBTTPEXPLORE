@@ -1,8 +1,13 @@
 # Module for the gompertz model tab in the TTP app
 
+source("modules/gompertz_helpers.R")
+
 gompertz_tab_module_ui <- function(id,
-                                   tvOffset_, tvAlpha_, tvBeta_, tvGamma_,
-                                   treatments_default_) {
+                                   tvOffset_ = tvOffsetDefault,
+                                   tvAlpha_ = tvAlphaDefault,
+                                   tvBeta_ = tvBetaDefault,
+                                   tvGamma_ = tvGammaDefault,
+                                   treatments_default_ = treatments_default) {
   ns <- NS(id)
 
   tagList(
@@ -219,7 +224,8 @@ gompertz_tab_module_ui <- function(id,
 }
 
 gompertz_tab_module <- function(input, output, session,
-                                BASELINETTP_, treatments_default_) {
+                                BASELINETTP_ = BASELINETTPDefault,
+                                treatments_default_ = treatments_default) {
 
   # Update the "compare to" dropdown so it doesn't have the Treatments variable
   observeEvent(input$trtcov, {
@@ -506,3 +512,4 @@ gompertz_tab_module <- function(input, output, session,
     }
   )
 }
+

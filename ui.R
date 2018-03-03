@@ -34,11 +34,7 @@ tagList(
       icon = icon("bar-chart"),
       class = "fade in",
 
-      plots_tab_module_ui(
-        "ttp",
-        ref_drug_list_all_ = ref_drug_list_all,
-        study_list_ = study_list
-      )
+      plots_tab_module_ui("ttp")
     ),
 
     tabPanel(
@@ -47,14 +43,7 @@ tagList(
       icon = icon("line-chart"),
       class = "fade in",
 
-      gompertz_tab_module_ui(
-        "ttp",
-        tvOffset_ = tvOffsetDefault,
-        tvAlpha_ = tvAlphaDefault,
-        tvBeta_ = tvBetaDefault,
-        tvGamma_ = tvGammaDefault,
-        treatments_default_ = treatments_default
-      )
+      gompertz_tab_module_ui("ttp")
     )
   )
 )
