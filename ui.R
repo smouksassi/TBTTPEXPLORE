@@ -52,7 +52,8 @@ tagList(
         tvOffset_ = tvOffsetDefault,
         tvAlpha_ = tvAlphaDefault,
         tvBeta_ = tvBetaDefault,
-        tvGamma_ = tvGammaDefault
+        tvGamma_ = tvGammaDefault,
+        treatments_default_ = treatments_default
       )
     )
   )

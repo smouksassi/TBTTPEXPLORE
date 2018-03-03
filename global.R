@@ -108,6 +108,15 @@ tvAlphaDefault <- 22.4067
 tvBetaDefault <- 2.22748
 tvGammaDefault <- 0.04946
 BASELINETTPDefault <- 6.295
+treatments_default <- c(
+  "TMC207",
+  "Placebo (Background Regimen)",
+  "MICRONUTRIENT/RHZE",
+  "PA-824/PZ/M",
+  "PHZE",
+  "MRZE",
+  "RHZE"
+)
 
 makegompertzModelCurve <- function(
   tvOffset = tvOffsetDefault,
@@ -125,29 +134,21 @@ makegompertzModelCurve <- function(
   dBetadTRTSIM = 1,
   dGamdTRTSIM = 1) {
 
-  if (!TRT %in% c(
-    "RHZE",
-    "TMC207",
-    "Placebo (Background Regimen)",
-    "MICRONUTRIENT/RHZE",
-    "PA-824/PZ/M",
-    "PHZE",
-    "MRZE",
-    "User Sim"
-  )) {
+  if (!TRT %in% c(treatments_default, "User Sim")) {
     print(TRT)
     stop(
-      paste(
-        "TRT=",
+      paste0(
+        "TRT = ",
         TRT,
-        "not supported, please choose a treatment from the following possibilities:
-        'RHZE', 'TMC207' ,'Placebo (Background Regimen)', 'MICRONUTRIENT/RHZE', 'PA-824/PZ/M','MRZE',
-        'PHZE', 'User Sim'  "
+        " not supported, please choose a treatment from the following possibilities: ",
+        "'", paste(c(treatments_default, "User Sim"), collapse = "', '"), "'"
       )
     )
   }
 
-  TRT <- ifelse(TRT == "Placebo (Background Regimen)", "Placebo", TRT)
+  if (TRT == "Placebo (Background Regimen)") {
+    TRT <- "Placebo"
+  }
 
   BASELINEINFO <-
     data.frame(

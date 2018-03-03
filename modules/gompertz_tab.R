@@ -1,6 +1,8 @@
 # Module for the gompertz model tab in the TTP app
 
-gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
+gompertz_tab_module_ui <- function(id,
+                                   tvOffset_, tvAlpha_, tvBeta_, tvGamma_,
+                                   treatments_default_) {
   ns <- NS(id)
 
   tagList(
@@ -22,16 +24,7 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
         radioButtons(
           ns("trtcov"),
           label = "Treatments",
-          choices = c(
-            "TMC207",
-            "Placebo (Background Regimen)",
-            "MICRONUTRIENT/RHZE",
-            "PA-824/PZ/M",
-            "PHZE",
-            "MRZE",
-            "RHZE",
-            "User Sim"
-          ),
+          choices = c(treatments_default_, "User Sim"),
           inline = FALSE,
           selected = "RHZE"
         ),
@@ -53,15 +46,7 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
         selectInput(
           ns("trtcovbackground"),
           label = "Compare to:",
-          choices = c(
-            "TMC207",
-            "Placebo (Background Regimen)",
-            "MICRONUTRIENT/RHZE",
-            "PA-824/PZ/M",
-            "PHZE",
-            "MRZE",
-            "RHZE"
-          ),
+          choices = treatments_default_,
           selected = "Placebo (Background Regimen)"
         )
       )
@@ -135,16 +120,7 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
           selectInput(
             ns("slidersinitials"),
             label = "Set Simulation Sliders to:",
-            choices = c(
-              "",
-              "TMC207",
-              "Placebo (Background Regimen)",
-              "MICRONUTRIENT/RHZE",
-              "PA-824/PZ/M",
-              "PHZE",
-              "MRZE",
-              "RHZE"
-            ),
+            choices = c("", treatments_default_),
             selected = ""
           )
         ),
@@ -158,6 +134,7 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
         condition = "input.changepopparams && input.trtcov == 'User Sim' ",
         ns = ns,
         fluidRow(
+          id = ns("popparams-inputs"),
           column(
             3,
             sliderInput(
@@ -232,29 +209,19 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
   )
 }
 
-gompertz_tab_module <- function(input, output, session, BASELINETTP_) {
+gompertz_tab_module <- function(input, output, session,
+                                BASELINETTP_, treatments_default_) {
 
   # Update the "compare to" dropdown so it doesn't have the Treatments variable
   observeEvent(input$trtcov, {
-    choices = c(
-      "Placebo (Background Regimen)",
-      "TMC207",
-      "MICRONUTRIENT/RHZE",
-      "PA-824/PZ/M",
-      "PHZE",
-      "MRZE",
-      "RHZE"
-    )[c(
-      "Placebo (Background Regimen)",
-      "TMC207",
-      "MICRONUTRIENT/RHZE",
-      "PA-824/PZ/M",
-      "PHZE",
-      "MRZE",
-      "RHZE"
-    ) != input$trtcov]
+    choices <- setdiff(treatments_default_, input$trtcov)
+    if (input$trtcovbackground %in% choices) {
+      new_choice <- input$trtcovbackground
+    } else {
+      new_choice <- choices[1]
+    }
     updateSelectInput(session, "trtcovbackground",
-                      choices = choices)
+                      choices = choices, selected = new_choice)
   })
 
   observeEvent(input$helpmodal, {
@@ -298,7 +265,7 @@ gompertz_tab_module <- function(input, output, session, BASELINETTP_) {
         dGamdTRTSIM  = GTRT
       )
     }
-    if (trtcov != "User Sim") {
+    else if (trtcov != "User Sim") {
       plotdata <- makegompertzModelCurve(
         TimeStartDays = 0,
         TimeEndDays = 120,
@@ -467,7 +434,6 @@ gompertz_tab_module <- function(input, output, session, BASELINETTP_) {
       )
 
     print(p)
-
   })
 
   output$table1 <- renderTable({
@@ -500,17 +466,10 @@ gompertz_tab_module <- function(input, output, session, BASELINETTP_) {
   }, include.rownames = FALSE)
 
 
-  observeEvent({
-    input$resetpop
-  }
-  , ignoreNULL = FALSE, {
-    shinyjs::reset("offsetslider")
-    shinyjs::reset("alphaslider")
-    shinyjs::reset("betaslider")
-    shinyjs::reset("gammaslider")
+  observeEvent(input$resetpop, ignoreNULL = FALSE, {
+    shinyjs::reset("popparams-inputs")
     shinyjs::reset("baselinettpslider")
   })
-
 
   observe({
     trtcov <- input$slidersinitials
