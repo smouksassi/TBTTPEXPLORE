@@ -4,58 +4,139 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
   ns <- NS(id)
 
   tagList(
-    fluidPage(
+    fluidRow(
       column(
         12,
-        bsButton(ns("helpmodal"),
-                 "Model Details and how to use this Page",
-                 style = "info")
-
+        actionButton(ns("helpmodal"),
+                     "Model Details and how to use this Page",
+                     class = "btn-primary")
+      )
+    ),
+    fluidRow(
+      column(
+        8,
+        plotOutput(outputId = ns("gompertzcurve"))
       ),
       column(
-        12,
-        column(8,
-               plotOutput(outputId = ns("gompertzcurve")),
-               hr()),
+        4,
+        radioButtons(
+          ns("trtcov"),
+          label = "Treatments",
+          choices = c(
+            "TMC207",
+            "Placebo (Background Regimen)",
+            "MICRONUTRIENT/RHZE",
+            "PA-824/PZ/M",
+            "PHZE",
+            "MRZE",
+            "RHZE",
+            "User Sim"
+          ),
+          inline = FALSE,
+          selected = "RHZE"
+        ),
+        radioTooltip(
+          ns("trtcov"),
+          choice = "Placebo (Background Regimen)",
+          title = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
+          placement = "right",
+          options = list(container = "body")
+        ),
+        radioTooltip(
+          ns("trtcov"),
+          choice = "User Sim",
+          title = "User can specify Baseline TTP and custom Treatment effects on various parameters",
+          placement = "right",
+          options = list(container = "body")
+        ),
 
-
+        selectInput(
+          ns("trtcovbackground"),
+          label = "Compare to:",
+          choices = c(
+            "TMC207",
+            "Placebo (Background Regimen)",
+            "MICRONUTRIENT/RHZE",
+            "PA-824/PZ/M",
+            "PHZE",
+            "MRZE",
+            "RHZE"
+          ),
+          selected = "Placebo (Background Regimen)"
+        )
+      )
+    ),
+    fluidRow(
+      column(12, hr())
+    ),
+    conditionalPanel(
+      condition = "input.trtcov == 'User Sim' ",
+      ns = ns,
+      fluidRow(
+        column(
+          3,
+          sliderInput(
+            ns("offsettrtslider"),
+            label = "TRT on Offset",
+            min = 1 / 10,
+            max = 10,
+            value = 1,
+            step = 0.005
+          )
+        ),
+        column(
+          3,
+          sliderInput(
+            ns("alphatrtslider"),
+            label = "TRT on Alpha",
+            min = 1 / 10,
+            max = 10,
+            value = 1,
+            step = 0.005
+          )
+        ),
+        column(
+          3,
+          sliderInput(
+            ns("betatrtslider"),
+            label = "TRT on Beta",
+            min = 1 / 10,
+            max = 10,
+            value = 1,
+            step = 0.005
+          )
+        ),
+        column(
+          3,
+          sliderInput(
+            ns("gammatrtslider"),
+            label = "TRT on Gamma",
+            min = 1 / 10,
+            max = 10,
+            value = 1,
+            step = 0.005
+          )
+        )
+      ),
+      fluidRow(
         column(
           4,
-          radioButtons(
-            ns("trtcov"),
-            label = "Treatments",
-            choices = c(
-              "TMC207",
-              "Placebo (Background Regimen)",
-              "MICRONUTRIENT/RHZE",
-              "PA-824/PZ/M",
-              "PHZE",
-              "MRZE",
-              "RHZE",
-              "User Sim"
-            ),
-            inline = FALSE,
-            selected = "RHZE"
-          ),
-          radioTooltip(
-            ns("trtcov"),
-            choice = "Placebo (Background Regimen)",
-            title = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
-            placement = "right",
-            options = list(container = "body")
-          ),
-          radioTooltip(
-            ns("trtcov"),
-            choice = "User Sim",
-            title = "User can specify Baseline TTP and custom Treatment effects on various parameters",
-            placement = "right",
-            options = list(container = "body")
-          ),
-
+          sliderInput(
+            ns("baselinettpslider"),
+            label = "Baseline TTP(days)",
+            min = 1,
+            max = 42,
+            value = 6.50,
+            step = 0.001
+          )
+        ),
+        column(
+          4,
           selectInput(
-            ns("trtcovbackground"),
-            label = "Compare to:",
+            ns("slidersinitials"),
+            label = "Set Simulation Sliders to:",
             choices = c(
+              "",
               "TMC207",
               "Placebo (Background Regimen)",
               "MICRONUTRIENT/RHZE",
@@ -64,165 +145,88 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
               "MRZE",
               "RHZE"
             ),
-            selected = "Placebo (Background Regimen)"
-          )
-
-        ),
-        #column4
-        column(
-          12,
-          conditionalPanel(
-            "input.trtcov == 'User Sim' ",
-
-            column(
-              3,
-              sliderInput(
-                ns("offsettrtslider"),
-                label = "TRT on Offset",
-                min = 1 / 10,
-                max = 10,
-                value = 1,
-                step = 0.005
-              )
-            ),
-            column(
-              3,
-              sliderInput(
-                ns("alphatrtslider"),
-                label = "TRT on Alpha",
-                min = 1 / 10,
-                max = 10,
-                value = 1,
-                step = 0.005
-              )
-            ),
-            column(
-              3,
-              sliderInput(
-                ns("betatrtslider"),
-                label = "TRT on Beta",
-                min = 1 / 10,
-                max = 10,
-                value = 1,
-                step = 0.005
-              )
-            ),
-            column(
-              3,
-              sliderInput(
-                ns("gammatrtslider"),
-                label = "TRT on Gamma",
-                min = 1 / 10,
-                max = 10,
-                value = 1,
-                step = 0.005
-              )
-            ),
-            column(
-              4,
-              sliderInput(
-                ns("baselinettpslider"),
-                label = "Baseline TTP(days)",
-                min = 1,
-                max = 42,
-                value = 6.50,
-                step = 0.001
-              )
-            ),
-            column(
-              4,
-              selectInput(
-                ns("slidersinitials"),
-                label = "Set Simulation Sliders to:",
-                choices = c(
-                  "",
-                  "TMC207",
-                  "Placebo (Background Regimen)",
-                  "MICRONUTRIENT/RHZE",
-                  "PA-824/PZ/M",
-                  "PHZE",
-                  "MRZE",
-                  "RHZE"
-                ),
-                selected = ""
-              )
-            ),
-            column(
-              4,
-              checkboxInput(ns("changepopparams"),
-                            "Change Population Values TTP?", FALSE)
-            ),
-            ns = ns
-          ),
-          conditionalPanel(
-            "input.changepopparams && input.trtcov == 'User Sim' ",
-            column(
-              12,
-              column(
-                3,
-                sliderInput(
-                  ns("offsetslider"),
-                  label = "Population Offset",
-                  min = tvOffset_ / 10,
-                  max = tvOffset_ * 10,
-                  value = tvOffset_,
-                  step = 0.005
-                )
-              ),
-              column(
-                3,
-                sliderInput(
-                  ns("alphaslider"),
-                  label = "Population Alpha",
-                  min = tvAlpha_ / 10,
-                  max = tvAlpha_ * 10,
-                  value = tvAlpha_,
-                  step = 0.002
-                )
-              ),
-              column(
-                3,
-                sliderInput(
-                  ns("betaslider"),
-                  label = "Population Beta",
-                  min = tvBeta_ / 10,
-                  max = tvBeta_ * 10,
-                  value = tvBeta_,
-                  step = 0.001
-                )
-              ),
-              column(
-                3,
-                sliderInput(
-                  ns("gammaslider"),
-                  label = "Population Gamma",
-                  min = tvGamma_ / 10,
-                  max = 10 * tvGamma_,
-                  value = tvGamma_,
-                  step = 0.001
-                )
-              ),
-              actionButton(
-                ns("resetpop"),
-                "Reset Baseline TTP and  Population Parameters to Initial Values"
-              )
-            ),
-            ns = ns
+            selected = ""
           )
         ),
-
-
-
         column(
-          12,
-          tags$strong("Primary Curve Parameters"),
-          tableOutput(ns('table1'))
-        )	,
-        column(
-          12,
-          tags$strong("Secondary Curve Parameters"),
-          tableOutput(ns('table2'))
+          4,
+          checkboxInput(ns("changepopparams"),
+                        "Change Population Values TTP?", FALSE)
         )
+      ),
+      conditionalPanel(
+        condition = "input.changepopparams && input.trtcov == 'User Sim' ",
+        ns = ns,
+        fluidRow(
+          column(
+            3,
+            sliderInput(
+              ns("offsetslider"),
+              label = "Population Offset",
+              min = tvOffset_ / 10,
+              max = tvOffset_ * 10,
+              value = tvOffset_,
+              step = 0.005
+            )
+          ),
+          column(
+            3,
+            sliderInput(
+              ns("alphaslider"),
+              label = "Population Alpha",
+              min = tvAlpha_ / 10,
+              max = tvAlpha_ * 10,
+              value = tvAlpha_,
+              step = 0.002
+            )
+          ),
+          column(
+            3,
+            sliderInput(
+              ns("betaslider"),
+              label = "Population Beta",
+              min = tvBeta_ / 10,
+              max = tvBeta_ * 10,
+              value = tvBeta_,
+              step = 0.001
+            )
+          ),
+          column(
+            3,
+            sliderInput(
+              ns("gammaslider"),
+              label = "Population Gamma",
+              min = tvGamma_ / 10,
+              max = 10 * tvGamma_,
+              value = tvGamma_,
+              step = 0.001
+            )
+          )
+        ),
+        fluidRow(
+          column(
+            12,
+            actionButton(
+              ns("resetpop"),
+              "Reset Baseline TTP and  Population Parameters to Initial Values"
+            ),
+            br(), br()
+          )
+        )
+      )
+    ),
+    fluidRow(
+      column(
+        12,
+        tags$strong("Primary Curve Parameters"),
+        tableOutput(ns('table1'))
+      )
+    ),
+    fluidRow(
+      column(
+        12,
+        tags$strong("Secondary Curve Parameters"),
+        tableOutput(ns('table2'))
       )
     )
   )

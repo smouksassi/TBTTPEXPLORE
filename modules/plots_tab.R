@@ -4,7 +4,7 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
   ns <- NS(id)
 
   tagList(
-    fluidPage(
+    fluidRow(
       column(
         6,
         tags$strong("Reference Treatment"),
@@ -20,7 +20,7 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
           "Select a Reference Treatment. To cancel a selection hit Backspace.",
           "top",
           options = list(container = "body")
-        ) ,
+        ),
 
         tags$strong("Test Treatment"),
         checkboxInput(ns("upload_custom"),
@@ -40,10 +40,10 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
           options = list(container = "body")
         ) ,
         conditionalPanel(
-          "input.upload_custom",
+          condition = "input.upload_custom",
+          ns = ns,
           fileInput(ns("custom_file"), NULL),
-          shinyjs::hidden(div(id = ns("upload_error"))),
-          ns = ns
+          shinyjs::hidden(div(id = ns("upload_error")))
         ),
 
         selectInput(
@@ -56,7 +56,7 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
         bsTooltip(
           ns("test_treat"),
           "Select a Test Treatment. To cancel a selection hit Backspace.",
-          "right",
+          "bottom",
           options = list(container = "body")
         )
 
@@ -80,79 +80,83 @@ plots_tab_module_ui <- function(id, ref_drug_list_all_, study_list_) {
 
       )
     ),
-    div(
-      id = ns("plot-main-opts"),
-      checkboxInput(ns("opt_overlay"), "Overlay data", value = FALSE),
-
-      bsTooltip(
-        ns("opt_overlay"),
-        "Check to plot both treatments side by side",
-        "left",
-        options = list(container = "body")
-      ),
-
-      checkboxInput(ns("opt_median"), "Show median value", value = FALSE),
-
-      bsTooltip(
-        ns("opt_median"),
-        "Check to show the numeric median value",
-        "top",
-        options = list(container = "body")
-      ) ,
-
-      checkboxInput(ns("opt_samplesize"), "Show sample size", value = FALSE),
-      bsTooltip(
-        ns("opt_samplesize"),
-        "Check to show the Number of patients",
-        "top",
-        options = list(container = "body")
-      ) ,
-
-      checkboxInput(
-        ns("opt_timedays"),
-        "Time in days (default: weeks)",
-        value = FALSE,
-        width = 300
-      ),
-      bsTooltip(
-        ns("opt_timedays"),
-        "Check to transform time from days into weeks",
-        "right",
-        options = list(container = "body")
-      ) ,
-      checkboxInput(
-        ns("opt_pred"),
-        "Overlay Model Pred",
-        value = FALSE,
-        width = 300
-      ) ,
-
-      bsTooltip(
-        ns("opt_pred"),
-        "Check to add the Model Population Predictions if the chosen Treatment(s) were modeled",
-        "left",
-        options = list(container = "body")
-      ) ,
-
-
-
-      checkboxInput(
-        ns("exclude42"),
-        "Exclude Censored TTP from observed",
-        value = FALSE,
-        width = 300
-      ),
-
-      bsTooltip(
-        ns("exclude42"),
-        HTML(
-          "Check to exclude <em>(censored)</em> TTP &ge; 42. This is useful to visualize the effect of missingness and to render the visual comparison between Model Pred and observed data Medians possible."
+    fluidRow(
+      column(
+        4,
+        checkboxInput(ns("opt_overlay"), "Overlay data", value = FALSE),
+        bsTooltip(
+          ns("opt_overlay"),
+          "Check to plot both treatments side by side",
+          "top",
+          options = list(container = "body")
         ),
-        "right",
-        options = list(container = "body")
+
+        checkboxInput(
+          ns("opt_timedays"),
+          "Time in days (default: weeks)",
+          value = FALSE,
+          width = 300
+        ),
+        bsTooltip(
+          ns("opt_timedays"),
+          "Check to transform time from days into weeks",
+          "top",
+          options = list(container = "body")
+        )
+      ),
+      column(
+        4,
+        checkboxInput(ns("opt_median"), "Show median value", value = FALSE),
+        bsTooltip(
+          ns("opt_median"),
+          "Check to show the numeric median value",
+          "top",
+          options = list(container = "body")
+        ),
+
+        checkboxInput(
+          ns("opt_pred"),
+          "Overlay Model Pred",
+          value = FALSE,
+          width = 300
+        ),
+        bsTooltip(
+          ns("opt_pred"),
+          "Check to add the Model Population Predictions if the chosen Treatment(s) were modeled",
+          "top",
+          options = list(container = "body")
+        )
+      ),
+      column(
+        4,
+        checkboxInput(ns("opt_samplesize"), "Show sample size", value = FALSE),
+        bsTooltip(
+          ns("opt_samplesize"),
+          "Check to show the Number of patients",
+          "top",
+          options = list(container = "body")
+        ),
+        checkboxInput(
+          ns("exclude42"),
+          "Exclude Censored TTP from observed",
+          value = FALSE,
+          width = 300
+        ),
+
+        bsTooltip(
+          ns("exclude42"),
+          HTML(
+            "Check to exclude <em>(censored)</em> TTP &ge; 42. This is useful to visualize the effect of missingness and to render the visual comparison between Model Pred and observed data Medians possible."
+          ),
+          "top",
+          options = list(container = "body")
+        )
       )
     ),
-    plotOutput(ns("tpp_boxplot"), width = "100%", height = "500px")
+    fluidRow(
+      column(12,
+             plotOutput(ns("tpp_boxplot"), width = "100%", height = "500px"))
+    )
   )
 }
 
