@@ -232,7 +232,9 @@ gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
   )
 }
 
-gompertz_tab_module <- function(input, output, session) {
+gompertz_tab_module <- function(input, output, session, BASELINETTP_) {
+
+  # Update the "compare to" dropdown so it doesn't have the Treatments variable
   observeEvent(input$trtcov, {
     choices = c(
       "Placebo (Background Regimen)",
@@ -278,7 +280,6 @@ gompertz_tab_module <- function(input, output, session) {
     B <- input$betaslider
     G <- input$gammaslider
 
-    REFBASELINETTP <- 6.295
     if (trtcov == "User Sim") {
       plotdata <- makegompertzModelCurve(
         tvOffset = E0,
@@ -289,7 +290,7 @@ gompertz_tab_module <- function(input, output, session) {
         TimeEndDays = 120,
         TimebyDays = 0.1,
         BASELINETTP = BASELINETTP,
-        REFBASELINETTP = REFBASELINETTP,
+        REFBASELINETTP = BASELINETTP_,
         TRT = trtcov,
         dE0dTRTSIM   = E0TRT,
         dAlphadTRTSIM = ATRT,
@@ -302,18 +303,13 @@ gompertz_tab_module <- function(input, output, session) {
         TimeStartDays = 0,
         TimeEndDays = 120,
         TimebyDays = 0.1,
-        REFBASELINETTP = REFBASELINETTP,
+        REFBASELINETTP = BASELINETTP_,
         TRT = trtcov
       )
     }
 
-
-
     plotdata
   })
-
-
-
 
   comparetourve <- reactive({
     trtcov <- input$trtcovbackground

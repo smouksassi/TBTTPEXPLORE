@@ -107,6 +107,7 @@ tvOffsetDefault <- 4.33843
 tvAlphaDefault <- 22.4067
 tvBetaDefault <- 2.22748
 tvGammaDefault <- 0.04946
+BASELINETTPDefault <- 6.295
 
 makegompertzModelCurve <- function(
   tvOffset = tvOffsetDefault,
@@ -116,8 +117,8 @@ makegompertzModelCurve <- function(
   TimeStartDays = 0,
   TimeEndDays = 120,
   TimebyDays = 0.1,
-  BASELINETTP = 6.295,
-  REFBASELINETTP = 6.295,
+  BASELINETTP = BASELINETTPDefault,
+  REFBASELINETTP = BASELINETTPDefault,
   TRT = "RHZE",
   dE0dTRTSIM = 1,
   dAlphadTRTSIM = 1,
@@ -160,7 +161,7 @@ makegompertzModelCurve <- function(
         "MRZE"
       ),
       BASELINETTP = c(6.50, 6.73, 6.71, 7.00, 4.03, 6.90, 6.00),
-      REFBASELINETTP = c(6.295, 6.295, 6.295, 6.295, 6.295, 6.295, 6.295)
+      REFBASELINETTP = rep(BASELINETTPDefault, 7)
     )
   if (TRT != "User Sim") {
     BASELINETTP <- BASELINEINFO[BASELINEINFO$TRT == TRT, "BASELINETTP"]
