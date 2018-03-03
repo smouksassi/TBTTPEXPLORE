@@ -103,12 +103,16 @@ ttp_data <- clean_dataset_weeks(ttp_data)
 ref_drug_list_all <- sort(as.character(unique(ttp_data$TRTDOSE)))
 study_list <- sort(as.character(unique(ttp_data$STUDY)))
 
+tvOffsetDefault <- 4.33843
+tvAlphaDefault <- 22.4067
+tvBetaDefault <- 2.22748
+tvGammaDefault <- 0.04946
 
 makegompertzModelCurve <- function(
-  tvOffset = 4.33843,
-  tvAlpha = 22.4067,
-  tvBeta = 2.22748,
-  tvGamma = 0.049461,
+  tvOffset = tvOffsetDefault,
+  tvAlpha = tvAlphaDefault,
+  tvBeta = tvBetaDefault,
+  tvGamma = tvGammaDefault,
   TimeStartDays = 0,
   TimeEndDays = 120,
   TimebyDays = 0.1,

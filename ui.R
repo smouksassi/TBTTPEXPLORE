@@ -47,7 +47,13 @@ tagList(
       icon = icon("line-chart"),
       class = "fade in",
 
-      gompertz_tab_module_ui("ttp")
+      gompertz_tab_module_ui(
+        "ttp",
+        tvOffset_ = tvOffsetDefault,
+        tvAlpha_ = tvAlphaDefault,
+        tvBeta_ = tvBetaDefault,
+        tvGamma_ = tvGammaDefault
+      )
     )
   )
 )

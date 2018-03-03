@@ -1,6 +1,6 @@
 # Module for the gompertz model tab in the TTP app
 
-gompertz_tab_module_ui <- function(id) {
+gompertz_tab_module_ui <- function(id, tvOffset_, tvAlpha_, tvBeta_, tvGamma_) {
   ns <- NS(id)
 
   tagList(
@@ -163,9 +163,9 @@ gompertz_tab_module_ui <- function(id) {
                 sliderInput(
                   ns("offsetslider"),
                   label = "Population Offset",
-                  min = 4.33843 / 10,
-                  max = 4.33843 * 10,
-                  value = 4.33843,
+                  min = tvOffset_ / 10,
+                  max = tvOffset_ * 10,
+                  value = tvOffset_,
                   step = 0.005
                 )
               ),
@@ -174,9 +174,9 @@ gompertz_tab_module_ui <- function(id) {
                 sliderInput(
                   ns("alphaslider"),
                   label = "Population Alpha",
-                  min = 22.4067 / 10,
-                  max = 22.4067 * 10,
-                  value = 22.4067,
+                  min = tvAlpha_ / 10,
+                  max = tvAlpha_ * 10,
+                  value = tvAlpha_,
                   step = 0.002
                 )
               ),
@@ -185,9 +185,9 @@ gompertz_tab_module_ui <- function(id) {
                 sliderInput(
                   ns("betaslider"),
                   label = "Population Beta",
-                  min = 2.22748 / 10,
-                  max = 2.22748 * 10,
-                  value = 2.22748,
+                  min = tvBeta_ / 10,
+                  max = tvBeta_ * 10,
+                  value = tvBeta_,
                   step = 0.001
                 )
               ),
@@ -196,9 +196,9 @@ gompertz_tab_module_ui <- function(id) {
                 sliderInput(
                   ns("gammaslider"),
                   label = "Population Gamma",
-                  min = 0.049461 / 10,
-                  max = 10 * 0.049461,
-                  value = 0.049461,
+                  min = tvGamma_ / 10,
+                  max = 10 * tvGamma_,
+                  value = tvGamma_,
                   step = 0.001
                 )
               ),
