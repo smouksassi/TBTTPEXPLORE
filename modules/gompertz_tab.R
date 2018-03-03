@@ -205,6 +205,15 @@ gompertz_tab_module_ui <- function(id,
         tags$strong("Secondary Curve Parameters"),
         tableOutput(ns('table2'))
       )
+    ),
+    fluidRow(
+      column(
+        12,
+        h3("Download data"),
+        radioButtons(ns("download_size"), NULL,
+                     choices = c("Condensed data" = "short", "Full data" = "full")),
+        downloadButton(ns("download_btn"), "Download")
+      )
     )
   )
 }
@@ -436,33 +445,30 @@ gompertz_tab_module <- function(input, output, session,
     print(p)
   })
 
-  output$table1 <- renderTable({
-    plotdata <- refcurve()
-    gompertzdataparams <- plotdata[1, ]
-    comparetourve <- comparetourve()[1, ]
+  cols_table_1 <- c("TRT", "BASELINETTP", "Offset", "Alpha", "Beta", "Gamma")
+  cols_table_2 <- c("TRT", "TTP0", "TTPMAX50", "EEFFMAX50", "TTPINF", "DeltaTTP",
+                    "TIMETTPMAX50", "TIMEEFFMAX50", "TTPAUC1", "TTPAUC3")
+
+  table_subset <- function(cols_to_keep = c(), first_row_only = TRUE) {
+    gompertzdataparams <- refcurve()
+    comparetourve <- comparetourve()
+    if (first_row_only) {
+      gompertzdataparams <- gompertzdataparams[1, ]
+      comparetourve <- comparetourve[1, ]
+    }
     df <- rbind(gompertzdataparams, comparetourve)
-    df <- df[, c("TRT", "BASELINETTP", "Offset", "Alpha", "Beta", "Gamma")]
+    if (length(cols_to_keep) > 0) {
+      df <- df[, cols_to_keep]
+    }
     df
+  }
+
+  output$table1 <- renderTable({
+    table_subset(cols_table_1)
   }, include.rownames = FALSE)
 
   output$table2 <- renderTable({
-    plotdata <- refcurve()
-    gompertzdataparams <- plotdata[1, ]
-    comparetourve <- comparetourve()[1, ]
-    df <- rbind(gompertzdataparams, comparetourve)
-    df <- df[, c(
-      "TRT",
-      "TTP0",
-      "TTPMAX50",
-      "EEFFMAX50",
-      "TTPINF",
-      "DeltaTTP",
-      "TIMETTPMAX50",
-      "TIMEEFFMAX50",
-      "TTPAUC1",
-      "TTPAUC3"
-    )]
-    df
+    table_subset(cols_table_2)
   }, include.rownames = FALSE)
 
 
@@ -486,6 +492,17 @@ gompertz_tab_module <- function(input, output, session,
       updateSliderInput(session, "baselinettpslider",
                         value = slidersdata[, "BASELINETTP"])
     }
-
   })
+
+  output$download_btn <- downloadHandler(
+    filename = "gompertz-data.csv",
+    content = function(file) {
+      if (input$download_size == "full") {
+        data <- table_subset(first_row_only = FALSE)
+      } else {
+        data <- table_subset(first_row_only = TRUE)
+      }
+      write.csv(data, file, row.names = FALSE)
+    }
+  )
 }
