@@ -34,7 +34,7 @@ tagList(
       icon = icon("bar-chart"),
       class = "fade in",
 
-      plots_tab_module_ui("ttp")
+      plots_tab_module_ui("plots")
     ),
 
     tabPanel(
@@ -43,7 +43,7 @@ tagList(
       icon = icon("line-chart"),
       class = "fade in",
 
-      gompertz_tab_module_ui("ttp")
+      gompertz_tab_module_ui("model")
     )
   )
 )
