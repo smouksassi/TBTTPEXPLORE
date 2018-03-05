@@ -1,3 +1,12 @@
+# Return whether or not a string contains (non-whitespace) characters
+notempty <- function(x) nzchar(trimws(x))
+
+# Create an inline version of a shiny input
+inlineInput <- function(tag) {
+  stopifnot(inherits(tag, "shiny.tag"))
+  tagAppendAttributes(tag, style = "display: inline-block; vertical-align: top;")
+}
+
 tvOffsetDefault <- 4.33843
 tvAlphaDefault <- 22.4067
 tvBetaDefault <- 2.22748
@@ -13,7 +22,7 @@ treatments_default <- c(
   "RHZE"
 )
 
-makegompertzModelCurve <- function(
+gompertz_default_args <- list(
   tvOffset = tvOffsetDefault,
   tvAlpha = tvAlphaDefault,
   tvBeta = tvBetaDefault,
@@ -27,19 +36,24 @@ makegompertzModelCurve <- function(
   dE0dTRTSIM = 1,
   dAlphadTRTSIM = 1,
   dBetadTRTSIM = 1,
-  dGamdTRTSIM = 1) {
+  dGamdTRTSIM = 1
+)
 
-  if (!TRT %in% c(treatments_default, "User Sim")) {
-    print(TRT)
-    stop(
-      paste0(
-        "TRT = ",
-        TRT,
-        " not supported, please choose a treatment from the following possibilities: ",
-        "'", paste(c(treatments_default, "User Sim"), collapse = "', '"), "'"
-      )
-    )
-  }
+makegompertzModelCurve <- function(
+  tvOffset = tvOffsetDefault,
+  tvAlpha = tvAlphaDefault,
+  tvBeta = tvBetaDefault,
+  tvGamma = tvGammaDefault,
+  TimeStartDays = gompertz_default_args$TimeStartDays,
+  TimeEndDays = gompertz_default_args$TimeEndDays,
+  TimebyDays = gompertz_default_args$TimebyDays,
+  BASELINETTP = BASELINETTPDefault,
+  REFBASELINETTP = BASELINETTPDefault,
+  TRT = gompertz_default_args$TRT,
+  dE0dTRTSIM = gompertz_default_args$dE0dTRTSIM,
+  dAlphadTRTSIM = gompertz_default_args$dAlphadTRTSIM,
+  dBetadTRTSIM = gompertz_default_args$dBetadTRTSIM,
+  dGamdTRTSIM = gompertz_default_args$dGamdTRTSIM) {
 
   if (TRT == "Placebo (Background Regimen)") {
     TRT <- "Placebo"
@@ -59,12 +73,14 @@ makegompertzModelCurve <- function(
       BASELINETTP = c(6.50, 6.73, 6.71, 7.00, 4.03, 6.90, 6.00),
       REFBASELINETTP = rep(BASELINETTPDefault, 7)
     )
-  if (TRT != "User Sim") {
+
+  default_trt_exists <- TRT %in% BASELINEINFO$TRT
+
+  if (default_trt_exists) {
     BASELINETTP <- BASELINEINFO[BASELINEINFO$TRT == TRT, "BASELINETTP"]
     REFBASELINETTP <-
       BASELINEINFO[BASELINEINFO$TRT == TRT, "REFBASELINETTP"]
-  }
-  if (TRT == "User Sim") {
+  } else {
     BASELINETTP <- BASELINETTP
     REFBASELINETTP <- REFBASELINETTP
   }
@@ -103,13 +119,15 @@ makegompertzModelCurve <- function(
   dGamdTRT7 <-  0.340369
   dGamdTRT17 <- 0.304038
 
+
+
   Offset <-
     tvOffset * (BASELINETTP / REFBASELINETTP) ^ dE0dBLMEANTTP * exp(dE0dTRT1 *
                                                                       (TRT == "TMC207")) *
     exp(dE0dTRT2 * (TRT == "Placebo")) * exp(dE0dTRT5 * (TRT == "MICRONUTRIENT/RHZE")) *
     exp(dE0dTRT6 * (TRT == "PA-824/PZ/M")) * exp(dE0dTRT7 * (TRT == "PHZE")) *
     exp(dE0dTRT17 * (TRT == "MRZE")) *
-    ifelse(TRT == "User Sim", dE0dTRTSIM, 1)
+    ifelse(!default_trt_exists, dE0dTRTSIM, 1)
 
   Alpha <-
     tvAlpha * (BASELINETTP / REFBASELINETTP) ^ dAlphadBLMEANTTP * exp(dAlphadTRT1 *
@@ -118,7 +136,7 @@ makegompertzModelCurve <- function(
     exp(dAlphadTRT6 * (TRT == "PA-824/PZ/M")) * exp(dAlphadTRT7 * (TRT ==
                                                                      "PHZE")) *
     exp(dAlphadTRT17 * (TRT == "MRZE")) *
-    ifelse(TRT == "User Sim", dAlphadTRTSIM, 1)
+    ifelse(!default_trt_exists, dAlphadTRTSIM, 1)
 
   Beta <-
     tvBeta * (BASELINETTP / REFBASELINETTP) ^ dBetadBLMEANTTP * exp(dBetadTRT1 *
@@ -126,7 +144,7 @@ makegompertzModelCurve <- function(
     exp(dBetadTRT2 * (TRT == "Placebo")) * exp(dBetadTRT5 * (TRT == "MICRONUTRIENT/RHZE")) *
     exp(dBetadTRT6 * (TRT == "PA-824/PZ/M")) * exp(dBetadTRT7 * (TRT == "PHZE")) *
     exp(dBetadTRT17 * (TRT == "MRZE")) *
-    ifelse(TRT == "User Sim", dBetadTRTSIM, 1)
+    ifelse(!default_trt_exists, dBetadTRTSIM, 1)
 
   Gamma <-
     tvGamma * (BASELINETTP / REFBASELINETTP) ^ dGamdBLMEANTTP * exp(dGamdTRT1 *
@@ -134,7 +152,7 @@ makegompertzModelCurve <- function(
     exp(dGamdTRT2 * (TRT == "Placebo")) * exp(dGamdTRT5 * (TRT == "MICRONUTRIENT/RHZE")) *
     exp(dGamdTRT6 * (TRT == "PA-824/PZ/M")) * exp(dGamdTRT7 * (TRT == "PHZE")) *
     exp(dGamdTRT17 * (TRT == "MRZE")) *
-    ifelse(TRT == "User Sim", dGamdTRTSIM, 1)
+    ifelse(!default_trt_exists, dGamdTRTSIM, 1)
 
   TTPPRED <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time))
   TIMETTPMAX50 <-

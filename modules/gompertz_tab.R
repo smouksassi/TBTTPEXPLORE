@@ -11,6 +11,7 @@ gompertz_tab_module_ui <- function(id,
   ns <- NS(id)
 
   tagList(
+    shinyalert::useShinyalert(),
     fluidRow(
       column(
         12,
@@ -26,176 +27,186 @@ gompertz_tab_module_ui <- function(id,
       ),
       column(
         4,
-        radioButtons(
+        selectInput(
           ns("trtcov"),
           label = "Treatments",
-          choices = c(treatments_default_, "User Sim"),
-          inline = FALSE,
+          choices = treatments_default_,
           selected = "RHZE"
         ),
-        radioTooltip(
-          ns("trtcov"),
-          choice = "Placebo (Background Regimen)",
-          title = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
-          placement = "right",
-          options = list(container = "body")
-        ),
-        radioTooltip(
-          ns("trtcov"),
-          choice = "User Sim",
-          title = "User can specify Baseline TTP and custom Treatment effects on various parameters",
-          placement = "right",
-          options = list(container = "body")
-        ),
-
         selectInput(
           ns("trtcovbackground"),
           label = "Compare to:",
           choices = treatments_default_,
           selected = "Placebo (Background Regimen)"
-        )
+        ),
+        helpText(style = "font-size: 14px;",
+                 "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)")
       )
     ),
     fluidRow(
       column(12, hr())
     ),
-    conditionalPanel(
-      condition = "input.trtcov == 'User Sim' ",
-      ns = ns,
-      fluidRow(
-        column(
-          3,
-          sliderInput(
-            ns("offsettrtslider"),
-            label = "TRT on Offset",
-            min = 1 / 10,
-            max = 10,
-            value = 1,
-            step = 0.005
-          )
-        ),
-        column(
-          3,
-          sliderInput(
-            ns("alphatrtslider"),
-            label = "TRT on Alpha",
-            min = 1 / 10,
-            max = 10,
-            value = 1,
-            step = 0.005
-          )
-        ),
-        column(
-          3,
-          sliderInput(
-            ns("betatrtslider"),
-            label = "TRT on Beta",
-            min = 1 / 10,
-            max = 10,
-            value = 1,
-            step = 0.005
-          )
-        ),
-        column(
-          3,
-          sliderInput(
-            ns("gammatrtslider"),
-            label = "TRT on Gamma",
-            min = 1 / 10,
-            max = 10,
-            value = 1,
-            step = 0.005
-          )
+    fluidRow(
+      column(
+        12,
+        h2("Custom Simulation")
+      )
+    ),
+    fluidRow(
+      column(
+        3,
+        sliderInput(
+          ns("offsettrtslider"),
+          label = "TRT on Offset",
+          min = 1 / 10,
+          max = 10,
+          value = 1,
+          step = 0.005
         )
       ),
+      column(
+        3,
+        sliderInput(
+          ns("alphatrtslider"),
+          label = "TRT on Alpha",
+          min = 1 / 10,
+          max = 10,
+          value = 1,
+          step = 0.005
+        )
+      ),
+      column(
+        3,
+        sliderInput(
+          ns("betatrtslider"),
+          label = "TRT on Beta",
+          min = 1 / 10,
+          max = 10,
+          value = 1,
+          step = 0.005
+        )
+      ),
+      column(
+        3,
+        sliderInput(
+          ns("gammatrtslider"),
+          label = "TRT on Gamma",
+          min = 1 / 10,
+          max = 10,
+          value = 1,
+          step = 0.005
+        )
+      )
+    ),
+    fluidRow(
+      column(
+        4,
+        sliderInput(
+          ns("baselinettpslider"),
+          label = "Baseline TTP(days)",
+          min = 1,
+          max = 42,
+          value = 6.50,
+          step = 0.001
+        )
+      ),
+      column(
+        4,
+        selectInput(
+          ns("slidersinitials"),
+          label = "Set Simulation Sliders to:",
+          choices = c("", treatments_default_),
+          selected = ""
+        )
+      ),
+      column(
+        4,
+        checkboxInput(ns("changepopparams"),
+                      "Change Population Values TTP?", FALSE)
+      )
+    ),
+    conditionalPanel(
+      condition = "input.changepopparams",
+      ns = ns,
       fluidRow(
+        id = ns("popparams-inputs"),
         column(
-          4,
+          3,
           sliderInput(
-            ns("baselinettpslider"),
-            label = "Baseline TTP(days)",
-            min = 1,
-            max = 42,
-            value = 6.50,
+            ns("offsetslider"),
+            label = "Population Offset",
+            min = tvOffset_ / 10,
+            max = tvOffset_ * 10,
+            value = tvOffset_,
+            step = 0.005
+          )
+        ),
+        column(
+          3,
+          sliderInput(
+            ns("alphaslider"),
+            label = "Population Alpha",
+            min = tvAlpha_ / 10,
+            max = tvAlpha_ * 10,
+            value = tvAlpha_,
+            step = 0.002
+          )
+        ),
+        column(
+          3,
+          sliderInput(
+            ns("betaslider"),
+            label = "Population Beta",
+            min = tvBeta_ / 10,
+            max = tvBeta_ * 10,
+            value = tvBeta_,
             step = 0.001
           )
         ),
         column(
-          4,
-          selectInput(
-            ns("slidersinitials"),
-            label = "Set Simulation Sliders to:",
-            choices = c("", treatments_default_),
-            selected = ""
+          3,
+          sliderInput(
+            ns("gammaslider"),
+            label = "Population Gamma",
+            min = tvGamma_ / 10,
+            max = 10 * tvGamma_,
+            value = tvGamma_,
+            step = 0.001
           )
-        ),
-        column(
-          4,
-          checkboxInput(ns("changepopparams"),
-                        "Change Population Values TTP?", FALSE)
         )
       ),
-      conditionalPanel(
-        condition = "input.changepopparams && input.trtcov == 'User Sim' ",
-        ns = ns,
-        fluidRow(
-          id = ns("popparams-inputs"),
-          column(
-            3,
-            sliderInput(
-              ns("offsetslider"),
-              label = "Population Offset",
-              min = tvOffset_ / 10,
-              max = tvOffset_ * 10,
-              value = tvOffset_,
-              step = 0.005
-            )
+      fluidRow(
+        column(
+          12,
+          actionButton(
+            ns("resetpop"),
+            "Reset Baseline TTP and  Population Parameters to Initial Values"
           ),
-          column(
-            3,
-            sliderInput(
-              ns("alphaslider"),
-              label = "Population Alpha",
-              min = tvAlpha_ / 10,
-              max = tvAlpha_ * 10,
-              value = tvAlpha_,
-              step = 0.002
-            )
-          ),
-          column(
-            3,
-            sliderInput(
-              ns("betaslider"),
-              label = "Population Beta",
-              min = tvBeta_ / 10,
-              max = tvBeta_ * 10,
-              value = tvBeta_,
-              step = 0.001
-            )
-          ),
-          column(
-            3,
-            sliderInput(
-              ns("gammaslider"),
-              label = "Population Gamma",
-              min = tvGamma_ / 10,
-              max = 10 * tvGamma_,
-              value = tvGamma_,
-              step = 0.001
-            )
-          )
-        ),
-        fluidRow(
-          column(
-            12,
-            actionButton(
-              ns("resetpop"),
-              "Reset Baseline TTP and  Population Parameters to Initial Values"
-            ),
-            br(), br()
-          )
+          br(), br()
         )
       )
+    ),
+    fluidRow(
+      column(
+        12,
+        inlineInput(textInput(
+          ns("custom_sim_name"),
+          label = NULL,
+          placeholder = "Custom simulation name"
+        )),
+        actionButton(
+          ns("create_custom_sim"),
+          "Create Custom Simulation",
+          class = "btn-primary"
+        ),
+        actionButton(
+          ns("clear_custom_sims"),
+          "Clear Saved Simulations"
+        )
+      )
+    ),
+    fluidRow(
+      column(12, hr())
     ),
     fluidRow(
       column(
@@ -227,9 +238,96 @@ gompertz_tab_module <- function(input, output, session,
                                 BASELINETTP_ = BASELINETTPDefault,
                                 treatments_default_ = treatments_default) {
 
+
+  custom_sims <- reactiveVal(list())
+
+  # collect input values for custom simulation into list
+  custom_sim_inputs <- reactive({
+    req(notempty(input$custom_sim_name))
+
+    sim_inputs <- list(
+      tvOffset = input$offsetslider,
+      tvAlpha = input$alphaslider,
+      tvBeta = input$betaslider,
+      tvGamma = input$gammaslider,
+      BASELINETTP = input$baselinettpslider,
+      TRT = input$custom_sim_name,
+      dE0dTRTSIM = input$offsettrtslider,
+      dAlphadTRTSIM = input$alphatrtslider,
+      dBetadTRTSIM = input$betatrtslider,
+      dGamdTRTSIM = input$gammatrtslider
+    )
+
+    modifyList(gompertz_default_args, sim_inputs)
+  })
+
+  observeEvent(input$custom_sim_name, {
+    cond <- notempty(input$custom_sim_name)
+
+    shinyjs::toggleState(id = "create_custom_sim", condition = cond)
+  })
+
+  observeEvent(custom_sims(), {
+    cond <- length(custom_sims()) > 0
+
+    shinyjs::toggle(
+      id = "clear_custom_sims",
+      condition = cond
+    )
+  })
+
+  observeEvent(input$clear_custom_sims, {
+    custom_sims(list())
+
+    shinyalert::shinyalert(
+      title = "All saved custom simulations were removed",
+      type = "success",
+      closeOnClickOutside = TRUE
+    )
+  })
+
+  # store custom simulation inputs in reactiveVal
+  observeEvent(input$create_custom_sim, {
+    sims <- custom_sims()
+
+    # append new custom sim to `custom_sims` reactive
+    custom_inputs <- custom_sim_inputs()
+    custom_name <- custom_inputs[['TRT']]
+    sims[[custom_name]] <- custom_inputs
+
+    custom_sims(sims)
+
+    shinyalert::shinyalert(
+      title = paste0('Custom Simulation for treatment "', custom_name, '" created'),
+      type = "success",
+      closeOnClickOutside = TRUE
+    )
+  })
+
+  treatment_choices <- reactive({
+    c(treatments_default_, names(custom_sims()))
+  })
+
+  # Update the "Treatments" dropdown to include custom parameter sets
+  observeEvent(treatment_choices(), {
+    choices <- treatment_choices()
+    if (input$trtcov %in% choices) {
+      new_choice <- input$trtcov
+    } else {
+      new_choice <- choices[1]
+    }
+
+    updateSelectInput(
+      session,
+      "trtcov",
+      choices = choices,
+      selected = new_choice
+    )
+  })
+
   # Update the "compare to" dropdown so it doesn't have the Treatments variable
-  observeEvent(input$trtcov, {
-    choices <- setdiff(treatments_default_, input$trtcov)
+  observeEvent(list(input$trtcov, treatment_choices()), {
+    choices <- setdiff(treatment_choices(), input$trtcov)
     if (input$trtcovbackground %in% choices) {
       new_choice <- input$trtcovbackground
     } else {
@@ -249,54 +347,26 @@ gompertz_tab_module <- function(input, output, session,
     )
   })
 
-  refcurve <- reactive({
-    trtcov <- input$trtcov
-    BASELINETTP <- input$baselinettpslider
-    E0TRT <- input$offsettrtslider
-    ATRT <- input$alphatrtslider
-    BTRT <- input$betatrtslider
-    GTRT <- input$gammatrtslider
+  plotdata_func <- function(trtcov, custom_sims = NULL) {
 
-    E0 <- input$offsetslider
-    A <- input$alphaslider
-    B <- input$betaslider
-    G <- input$gammaslider
-
-    if (trtcov == "User Sim") {
-      plotdata <- makegompertzModelCurve(
-        tvOffset = E0,
-        tvAlpha = A,
-        tvBeta = B,
-        tvGamma = G,
-        TimeStartDays = 0,
-        TimeEndDays = 120,
-        TimebyDays = 0.1,
-        BASELINETTP = BASELINETTP,
-        REFBASELINETTP = BASELINETTP_,
-        TRT = trtcov,
-        dE0dTRTSIM   = E0TRT,
-        dAlphadTRTSIM = ATRT,
-        dBetadTRTSIM = BTRT,
-        dGamdTRTSIM  = GTRT
-      )
+    if (!(trtcov %in% treatments_default_)) {
+      req(trtcov %in% names(custom_sims))
+      model_params <- custom_sims[[trtcov]]
     }
-    else if (trtcov != "User Sim") {
-      plotdata <- makegompertzModelCurve(
-        TimeStartDays = 0,
-        TimeEndDays = 120,
-        TimebyDays = 0.1,
-        REFBASELINETTP = BASELINETTP_,
-        TRT = trtcov
-      )
+    else {
+      model_params <- list(TRT = trtcov)
     }
+    plotdata <- do.call(makegompertzModelCurve, args = model_params)
 
     plotdata
+  }
+
+  refcurve <- reactive({
+    plotdata_func(input$trtcov, custom_sims())
   })
 
   comparetourve <- reactive({
-    trtcov <- input$trtcovbackground
-    plotdata <- makegompertzModelCurve(TRT = trtcov)
-    plotdata
+    plotdata_func(input$trtcovbackground, custom_sims())
   })
 
   output$gompertzcurve <- renderPlot({
