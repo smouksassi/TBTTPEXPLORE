@@ -20,15 +20,6 @@ tagList(
     ),
 
     tabPanel(
-      "How to",
-      value = "howto",
-      icon = icon("info"),
-      class = "fade in",
-
-      includeMarkdown(file.path("text", "howto.md"))
-    ),
-
-    tabPanel(
       "Plots",
       value = "plots",
       icon = icon("bar-chart"),
@@ -44,6 +35,25 @@ tagList(
       class = "fade in",
 
       gompertz_tab_module_ui("model")
+    ),
+
+    tabPanel(
+      "Help",
+      value = "howto",
+      icon = icon("question-circle"),
+      class = "fade in",
+
+      tabsetPanel(
+        type = "pills",
+        tabPanel(
+          "Plots",
+          includeMarkdown(file.path("text", "plots-help.md"))
+        ),
+        tabPanel(
+          "Gompertz Model",
+          withMathJax(includeHTML(file.path("text", "gompertz.html")))
+        )
+      )
     )
   )
 )

@@ -14,14 +14,6 @@ gompertz_tab_module_ui <- function(id,
     shinyalert::useShinyalert(),
     fluidRow(
       column(
-        12,
-        actionButton(ns("helpmodal"),
-                     "Model Details and how to use this Page",
-                     class = "btn-primary")
-      )
-    ),
-    fluidRow(
-      column(
         8,
         plotOutput(outputId = ns("gompertzcurve"))
       ),
@@ -335,16 +327,6 @@ gompertz_tab_module <- function(input, output, session,
     }
     updateSelectInput(session, "trtcovbackground",
                       choices = choices, selected = new_choice)
-  })
-
-  observeEvent(input$helpmodal, {
-    showModal(
-      modalDialog(
-        title = "Gompertz Model",
-        withMathJax(includeHTML(file.path("text", "gompertz.html"))),
-        easyClose = TRUE
-      )
-    )
   })
 
   plotdata_func <- function(trtcov, custom_sims = NULL) {
