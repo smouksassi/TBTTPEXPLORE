@@ -34,9 +34,9 @@ plots_tab_module_ui <- function(id,
           ns("upload_custom"),
           HTML(
             paste(
-              "Check to upload your own data from a .csv file. Refer to the<br>How to ",
-              icon("info"),
-              " tab for more information about required format and columns names.",
+              "Check to upload your own data from a .csv file. Refer to the<br>Help ",
+              icon("question-circle"),
+              " Plots tab for more information about required format and columns names.",
               sep = ""
             )
           ),

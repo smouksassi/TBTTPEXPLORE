@@ -5,7 +5,7 @@ output: html_fragment
 ### 1- Gompertz Model Definition, Properties and Equations:
 This page allows the user to explore the TTP curve over time using the modeled Gompertz equation.
 $${\text{TTP}(t)=Offset +\alpha*\exp\left[-\beta*\exp\left(-\gamma*\text{Time}\right)\right]}$$
-Where $Offset$ is the theoretical lower asymptote, $\alpha$ is the upper asymptote, $\beta$ is a shape parameter controlling where the curve start and $\gamma$ is a shape parameter controlling the steepness of the curve. On this curve we are interested in several quantities of interest illustrated in this plot:
+Where $Offset$ is the theoretical lower asymptote, $\alpha$ is the upper asymptote, $\beta$ is a shape parameter controlling where the curve starts and $\gamma$ is a shape parameter controlling the steepness of the curve. On this curve we are interested in several quantities of interest illustrated in this plot:
 
 <div style="text-align: center;">
 ![](./gompertzexplain1000_600.png){ width=70% }
@@ -13,10 +13,11 @@ Where $Offset$ is the theoretical lower asymptote, $\alpha$ is the upper asympto
 
 The plot also includes two points of interest:   
 A gray triangle representing $\text{TTP}_{50}$ and the time to reach it. $\text{TTP}_{50}$ is defined as:
-$${\text{Time to TTP}_{50}=\log\left(\log\left[\left(\frac{1}{2}−\frac{Offset}{2∗\alpha}\right)^{\frac{−1}{\beta}}\right]^{\frac{−1}{\gamma}}\right)}$$
+$${\text{Time to TTP}_{50}=\log\left(\log\left(\left(\frac{1}{2}-\frac{Offset}{2*\alpha}\right)^{\frac{-1}{\beta}}\right)^{\frac{-1}{\gamma}}\right)}$$
 
 A gray diamond representing $\text{Eff}_{50}$ and the time to reach it. $\text{Eff}_{50}$ is defined as:
-$${\text{Time to Eff}_{50}=\log\left(\log\left[\left(\frac{1}{2}*\left(1+\exp\left(-\beta\right)\right)\right)^{\frac{−1}{\beta}}\right]^{\frac{−1}{\gamma}}\right)}$$
+$${\text{Time to Eff}_{50}=\log\left(\log\left(\left(\frac{1}{2}*\left(1+\exp\left(-\beta\right)\right)\right)^{\frac{-1}{\beta}}\right)^{\frac{-1}{\gamma}}\right)}$$
+  
 
 Two other values of interest on the curve are the TTP value at the start of treatment Time = 0 and at Time = $\infty$
 
