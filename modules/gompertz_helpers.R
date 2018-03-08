@@ -186,7 +186,7 @@ makegompertzModelCurve <- function(
   GammaTRT <- Gamma / (tvGamma * GammaBASELINEEFF)
   TRT <- ifelse(TRT == "Placebo", "Placebo (Background Regimen)", TRT)
 
-  df <- data.frame(
+  df <- dplyr::data_frame(
     Time = Time,
     TTPPRED = TTPPRED,
     TIMETTPMAX50 = TIMETTPMAX50,

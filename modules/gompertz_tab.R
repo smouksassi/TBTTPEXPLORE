@@ -22,13 +22,18 @@ gompertz_tab_module_ui <- function(id,
         selectInput(
           ns("trtcov"),
           label = "Treatments",
-          choices = treatments_default_,
+          choices = list(
+            "Default Treatments" = treatments_default_,
+            "Live Simulation" = list("Live Simulation")
+          ),
           selected = "RHZE"
         ),
         selectInput(
           ns("trtcovbackground"),
           label = "Compare to:",
-          choices = treatments_default_,
+          choices = list(
+            "Default Treatments" = treatments_default_
+          ),
           selected = "Placebo (Background Regimen)"
         ),
         helpText(style = "font-size: 14px;",
@@ -172,7 +177,7 @@ gompertz_tab_module_ui <- function(id,
           12,
           actionButton(
             ns("resetpop"),
-            "Reset Baseline TTP and  Population Parameters to Initial Values"
+            "Reset Baseline TTP and Population Parameters to Initial Values"
           ),
           br(), br()
         )
@@ -194,6 +199,15 @@ gompertz_tab_module_ui <- function(id,
         actionButton(
           ns("clear_custom_sims"),
           "Clear Saved Simulations"
+        )
+      ),
+      column(
+        12,
+        div(
+          id = ns("name_exists_warning"),
+          class = "alert alert-warning",
+          textOutput(ns("existing_name"), inline = TRUE),
+          " already exists as a default treatment name.  Please choose another name."
         )
       )
     ),
@@ -233,10 +247,7 @@ gompertz_tab_module <- function(input, output, session,
 
   custom_sims <- reactiveVal(list())
 
-  # collect input values for custom simulation into list
-  custom_sim_inputs <- reactive({
-    req(notempty(input$custom_sim_name))
-
+  live_sim <- reactive({
     sim_inputs <- list(
       tvOffset = input$offsetslider,
       tvAlpha = input$alphaslider,
@@ -253,10 +264,26 @@ gompertz_tab_module <- function(input, output, session,
     modifyList(gompertz_default_args, sim_inputs)
   })
 
-  observeEvent(input$custom_sim_name, {
-    cond <- notempty(input$custom_sim_name)
+  # collect input values for custom simulation into list
+  custom_sim_inputs <- reactive({
+    req(notempty(input$custom_sim_name))
 
-    shinyjs::toggleState(id = "create_custom_sim", condition = cond)
+    live_sim()
+  })
+
+  # Do not allow empty custom simulation name or a name that exists as a default
+  # treatment
+  observeEvent(input$custom_sim_name, {
+    custom_sim_name <- input[["custom_sim_name"]]
+
+    name_is_new <- !(custom_sim_name %in% treatments_default_)
+    valid_name <- notempty(custom_sim_name) && name_is_new
+    shinyjs::toggleState(id = "create_custom_sim", condition = valid_name)
+    shinyjs::toggle(id = "name_exists_warning", condition = !name_is_new)
+  })
+
+  output$existing_name <- renderText({
+    input[["custom_sim_name"]]
   })
 
   observeEvent(custom_sims(), {
@@ -297,58 +324,108 @@ gompertz_tab_module <- function(input, output, session,
   })
 
   treatment_choices <- reactive({
-    c(treatments_default_, names(custom_sims()))
+    list(
+      defaults = treatments_default_,
+      custom = names(custom_sims())
+    )
   })
+
+
 
   # Update the "Treatments" dropdown to include custom parameter sets
   observeEvent(treatment_choices(), {
     choices <- treatment_choices()
-    if (input$trtcov %in% choices) {
+
+    if (input[["trtcov"]] == "Live Simulation") {
+      new_choice <- input$trtcov
+    } else if (input[["trtcov"]] %in% unlist(choices)) {
       new_choice <- input$trtcov
     } else {
-      new_choice <- choices[1]
+      new_choice <- choices[["defaults"]][1]
+    }
+
+    choices_out <- list(
+      "Default Treatments" = choices[["defaults"]],
+      "Live Simulation" = list("Live Simulation")
+    )
+
+    if (length(choices[["custom"]]) > 0) {
+      choices_out <- c(choices_out, list("Custom Simulations" = as.list(choices[["custom"]])))
     }
 
     updateSelectInput(
       session,
       "trtcov",
-      choices = choices,
+      choices = choices_out,
       selected = new_choice
     )
   })
 
   # Update the "compare to" dropdown so it doesn't have the Treatments variable
-  observeEvent(list(input$trtcov, treatment_choices()), {
-    choices <- setdiff(treatment_choices(), input$trtcov)
-    if (input$trtcovbackground %in% choices) {
-      new_choice <- input$trtcovbackground
+  observeEvent(list(input[["trtcov"]], treatment_choices()), {
+    choices <- treatment_choices()
+
+    choices[["defaults"]] <- setdiff(choices[["defaults"]], input[["trtcov"]])
+    choices[["custom"]] <- setdiff(choices[["custom"]], input[["trtcov"]])
+    if (input[["trtcovbackground"]] %in% unlist(choices)) {
+      new_choice <- input[["trtcovbackground"]]
     } else {
-      new_choice <- choices[1]
+      new_choice <- choices[["defaults"]][1]
     }
+    if (length(choices) == 2) {
+      choices[["custom"]] <- as.list(choices[["custom"]])
+      names(choices) <- c("Default Treatments", "Custom Simulations")
+    } else if (length(choices) == 1) {
+      names(choices) <- "Default Treatements"
+    }
+
     updateSelectInput(session, "trtcovbackground",
                       choices = choices, selected = new_choice)
   })
 
-  plotdata_func <- function(trtcov, custom_sims = NULL) {
+  # prep sim names for all simulations "Treatments" and "Compare to" that will be
+  # shown in table and download output
+  other_sim_names <- reactive({
+    custom_sim_names <- names(custom_sims())
+    sel_sim_names <- c(input[["trtcov"]], input[["trtcovbackground"]])
 
-    if (!(trtcov %in% treatments_default_)) {
-      req(trtcov %in% names(custom_sims))
-      model_params <- custom_sims[[trtcov]]
-    }
-    else {
+
+    # remove custom sim name if it is selected in input$trtcov and/or
+    # input$trtcovbackground are custom sims names
+    setdiff(custom_sim_names, sel_sim_names)
+  })
+
+
+  plotdata_func <- function(trtcov) {
+
+    if (trtcov == "Live Simulation") {
+      model_params <- live_sim()
+      model_params[["TRT"]] <- "Live Simulation"
+    } else if (trtcov %in% treatments_default_) {
       model_params <- list(TRT = trtcov)
+    } else {
+      req(trtcov %in% names(custom_sims()))
+      model_params <- custom_sims()[[trtcov]]
     }
+
     plotdata <- do.call(makegompertzModelCurve, args = model_params)
 
     plotdata
   }
 
   refcurve <- reactive({
-    plotdata_func(input$trtcov, custom_sims())
+    plotdata_func(input[["trtcov"]])
   })
 
   comparetourve <- reactive({
-    plotdata_func(input$trtcovbackground, custom_sims())
+    plotdata_func(input$trtcovbackground)
+  })
+
+  # any custom simulation parameter sets that are not in "Treatment" or "Compare to"
+  other_curves <- reactive({
+    custom_sims <- custom_sims()
+
+    lapply(other_sim_names(), function(nm) plotdata_func(nm))
   })
 
   output$gompertzcurve <- renderPlot({
@@ -508,13 +585,21 @@ gompertz_tab_module <- function(input, output, session,
                     "TIMETTPMAX50", "TIMEEFFMAX50", "TTPAUC1", "TTPAUC3")
 
   table_subset <- function(cols_to_keep = c(), first_row_only = TRUE) {
-    gompertzdataparams <- refcurve()
-    comparetourve <- comparetourve()
+    # merge curves into 1 list
+    curves <- c(
+      list(
+        "refcurve" = refcurve(),
+        "comparetourve" = comparetourve()
+      ),
+      other_curves()
+    )
+
     if (first_row_only) {
-      gompertzdataparams <- gompertzdataparams[1, ]
-      comparetourve <- comparetourve[1, ]
+      curves <- lapply(curves, function(curve) {
+        curve[1, ]
+      })
     }
-    df <- rbind(gompertzdataparams, comparetourve)
+    df <- dplyr::bind_rows(curves)
     if (length(cols_to_keep) > 0) {
       df <- df[, cols_to_keep]
     }
@@ -540,15 +625,15 @@ gompertz_tab_module <- function(input, output, session,
     if (trtcov != "") {
       slidersdata <- makegompertzModelCurve(TRT = trtcov)[1, ]
       updateSliderInput(session, "offsettrtslider",
-                        value = slidersdata[, "OffsetTRT"])
+                        value = slidersdata[["OffsetTRT"]])
       updateSliderInput(session, "alphatrtslider",
-                        value = slidersdata[, "AlphaTRT"])
+                        value = slidersdata[["AlphaTRT"]])
       updateSliderInput(session, "betatrtslider",
-                        value = slidersdata[, "BetaTRT"])
+                        value = slidersdata[["BetaTRT"]])
       updateSliderInput(session, "gammatrtslider",
-                        value = slidersdata[, "GammaTRT"])
+                        value = slidersdata[["GammaTRT"]])
       updateSliderInput(session, "baselinettpslider",
-                        value = slidersdata[, "BASELINETTP"])
+                        value = slidersdata[["BASELINETTP"]])
     }
   })
 
