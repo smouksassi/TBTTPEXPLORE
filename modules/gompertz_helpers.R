@@ -21,6 +21,10 @@ treatments_default <- c(
   "MRZE",
   "RHZE"
 )
+treatment_descriptions <- list(
+  "Placebo (Background Regimen)" = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
+  "Live Simulation" = "View the current set of parameters"
+)
 
 gompertz_default_args <- list(
   tvOffset = tvOffsetDefault,

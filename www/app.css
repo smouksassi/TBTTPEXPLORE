@@ -15,6 +15,10 @@ body > .container > .tab-content {
   margin-bottom: 100px;
 }
 
+.help-block {
+  font-size: 14px;
+}
+
 /* Navbar */
 
 .navbar-inverse {

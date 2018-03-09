@@ -7,7 +7,8 @@ gompertz_tab_module_ui <- function(id,
                                    tvAlpha_ = tvAlphaDefault,
                                    tvBeta_ = tvBetaDefault,
                                    tvGamma_ = tvGammaDefault,
-                                   treatments_default_ = treatments_default) {
+                                   treatments_default_ = treatments_default,
+                                   treatment_descriptions_ = treatment_descriptions) {
   ns <- NS(id)
 
   tagList(
@@ -28,6 +29,16 @@ gompertz_tab_module_ui <- function(id,
           ),
           selected = "RHZE"
         ),
+        lapply(
+          names(treatment_descriptions_),
+          function(treatment) {
+            conditionalPanel(
+              condition = paste0("input.trtcov == '", treatment, "'"),
+              ns = ns,
+              helpText(treatment_descriptions_[[treatment]])
+            )
+          }
+        ),
         selectInput(
           ns("trtcovbackground"),
           label = "Compare to:",
@@ -36,8 +47,16 @@ gompertz_tab_module_ui <- function(id,
           ),
           selected = "Placebo (Background Regimen)"
         ),
-        helpText(style = "font-size: 14px;",
-                 "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)")
+        lapply(
+          names(treatment_descriptions_),
+          function(treatment) {
+            conditionalPanel(
+              condition = paste0("input.trtcovbackground == '", treatment, "'"),
+              ns = ns,
+              helpText(treatment_descriptions_[[treatment]])
+            )
+          }
+        )
       )
     ),
     fluidRow(
