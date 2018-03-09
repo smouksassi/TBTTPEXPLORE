@@ -449,8 +449,10 @@ gompertz_tab_module <- function(input, output, session,
 
   output$gompertzcurve <- renderPlot({
     plotdata <- refcurve()
+    plotdata$TRT <- as.factor(plotdata$TRT)
     gompertzdataparams <- plotdata[1, ]
     backdata <- comparetourve()
+    backdata$TRT <- as.factor(backdata$TRT)
     backdataparams <- backdata[1, ]
     alldata <- rbind(backdata, plotdata)
     alldataparams <- rbind(backdataparams, gompertzdataparams)
