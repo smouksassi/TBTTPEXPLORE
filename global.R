@@ -5,6 +5,7 @@ library(shinyBS)
 library(htmltools)
 library(dplyr)
 library(shinyalert)
+library(plotly)
 
 source("modules/plots_tab.R")
 source("modules/gompertz_tab.R")

@@ -16,7 +16,8 @@ gompertz_tab_module_ui <- function(id,
     fluidRow(
       column(
         8,
-        plotOutput(outputId = ns("gompertzcurve"))
+        #plotOutput(outputId = ns("gompertzcurve"))
+        plotlyOutput(outputId = ns("gompertzcurveplotly"))
       ),
       column(
         4,
@@ -597,6 +598,173 @@ gompertz_tab_module <- function(input, output, session,
         legend.position = "bottom",
         legend.box = "vertical"
       )
+
+    print(p)
+  })
+
+  output$gompertzcurveplotly <- renderPlotly({
+    plotdata <- refcurve()
+    plotdata$TRT <- as.factor(plotdata$TRT)
+    gompertzdataparams <- plotdata[1,]
+    backdata <- comparetourve()
+    backdata$TRT <- as.factor(backdata$TRT)
+    backdataparams <- backdata[1,]
+    alldata <- rbind(backdata, plotdata)
+    #alldata <-makegompertzModelCurve()
+    alldata <- alldata %>%
+      group_by(TRT) %>%
+      mutate(
+        TIMETTPFLAG = ifelse(Time >= TIMETTPMAX50, 1, 0) ,
+        cumsumttpflag = cumsum(TIMETTPFLAG)
+      )
+
+    pointsdata <- alldata %>%
+      group_by(TRT) %>%
+      filter(cumsumttpflag == 1)
+
+
+    pointsdata2 <- alldata %>%
+      group_by(TRT) %>%
+      filter(Time == TIMEEFFMAX50)
+
+
+    p <-
+      plot_ly(
+        alldata,
+        x = ~ Time,
+        y = ~ TTPPRED,
+        type = 'scatter',
+        mode = 'lines',
+        name = 'TTP(t)',
+        legendgroup = "TTP(t)",
+        line = list(color = toRGB("black", alpha = 0.5), width = 5),
+        linetype =  ~ TRT,
+        color = I('black'),
+        hoverinfo = 'text',
+        text = ~ paste(
+          "</br> Treatment: ",
+          TRT,
+          '</br> Time: ',
+          round(Time, 1),
+          '</br> TTP(t): ',
+          round(TTPPRED, 1)
+        )
+      ) %>%
+      add_markers(
+        data = pointsdata2 ,
+        x = 0,
+        y = ~ TTP0,
+        type = 'scatter',
+        mode = 'markers',
+        marker  = list(
+          color = toRGB("black", alpha = 0.7),
+          size = 20,
+          symbol = "circle"
+        ),
+        name = "TTP(0)",
+        legendgroup = "TTP(0)",
+        inherit = FALSE,
+        hoverinfo = 'text',
+        text = ~ paste("</br> Treatment: ", TRT,
+                       '</br> TTP(0): ', round(TTP0, 1))
+
+      ) %>%
+
+      add_markers(
+        data = pointsdata ,
+        x =  ~ TIMETTPMAX50,
+        y = ~ TTPMAX50,
+        type = 'scatter',
+        mode = 'markers',
+        marker  = list(
+          color = toRGB("black", alpha = 0.5),
+          size = 20,
+          symbol = "triangle-up"
+        ),
+        name = "TTP<sub>50</sub>",
+        legendgroup = "TTP<sub>50</sub>",
+        inherit = FALSE,
+        hoverinfo = 'text',
+        text = ~ paste(
+          "</br> Treatment: ",
+          TRT,
+          '</br> Time to TTP<sub>50</sub>: ',
+          round(TIMETTPMAX50, 1),
+          '</br> TTP<sub>50</sub>: ',
+          round(TTPMAX50, 1)
+        )
+
+      ) %>%
+
+      add_markers(
+        data = pointsdata2 ,
+        x =  ~ TIMEEFFMAX50,
+        y = ~ EEFFMAX50,
+        type = 'scatter',
+        mode = 'markers',
+        marker  = list(
+          color = toRGB("black", alpha = 0.3),
+          size = 20,
+          symbol = "diamond"
+        ),
+        name = "EFF<sub>50</sub> ",
+        legendgroup = "EFF<sub>50</sub>",
+        inherit = FALSE,
+        hoverinfo = 'text',
+        text = ~ paste(
+          "</br> Treatment: ",
+          TRT,
+          '</br> Time to EFF<sub>50</sub>: ',
+          round(TIMEEFFMAX50, 1),
+          '</br> EFF<sub>50</sub>: ',
+          round(EEFFMAX50, 1)
+        )
+
+      ) %>%
+      add_lines(
+        data = alldata ,
+        x = ~ Time,
+        y = ~ TTPINF,
+        type = 'scatter',
+        mode = 'lines',
+        name = 'TTP(\u221E)',
+        line = list(color = toRGB("black", alpha = 0.5), width = 5),
+        linetype =  ~ TRT,
+        color = I('black'),
+        legendgroup = "TTP(\u221E)",
+        inherit = FALSE,
+        hoverinfo = 'text',
+        text = ~ paste("</br> Treatment: ", TRT,
+                       '</br> TTP(\u221E) ', round(TTPINF, 1))
+      ) %>%
+
+      layout(
+        xaxis = list(
+          title = 'Days Post Start of Treatment',
+          ticks = "outside",
+          autotick = TRUE,
+          ticklen = 5,
+          range = c(-2, 121),
+          gridcolor = toRGB("gray50"),
+          showline = TRUE
+        ) ,
+        yaxis = list (
+          title = 'TTP (t), Days'               ,
+          ticks = "outside",
+          autotick = TRUE,
+          ticklen = 5,
+          gridcolor = toRGB("gray50"),
+          showline = TRUE
+        ) ,
+        legend = list(
+          orientation = 'h',
+          xanchor = "center",
+          y = -0.25,
+          x = 0.5
+        )
+      )
+
+
 
     print(p)
   })
