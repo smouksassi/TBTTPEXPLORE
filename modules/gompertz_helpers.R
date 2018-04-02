@@ -43,6 +43,25 @@ gompertz_default_args <- list(
   dGamdTRTSIM = 1
 )
 
+apply_survival_function <- function(t, fn, supplied_fn_type, fn_type_to_apply){
+  integrate_from_0 <- function(fn, t){
+    int_fn <- function(t){
+      integrate(fn, 0, t)
+    }
+
+    result <- sapply(t, int_fn)
+    value  <- unlist(result["value",])
+    msg    <- unlist(result["message",])
+    value[which(msg != "OK")] <- NA
+    return(value)
+  }
+  if (supplied_fn_type == "h"){
+    if (fn_type_to_apply == "F") y <- 1 - exp(-integrate_from_0(fn, t))
+  }
+  return(y)
+}
+
+
 makegompertzModelCurve <- function(
   tvOffset = tvOffsetDefault,
   tvAlpha = tvAlphaDefault,
@@ -173,10 +192,22 @@ makegompertzModelCurve <- function(
 
   Time90    <- seq(0, 90, 0.1)
   Time30    <- seq(0, 30, 0.1)
+
+  Time14    <- seq(0, 14, 0.1)
+  Time28    <- seq(0, 28, 0.1)
+  Time56    <- seq(0, 56, 0.1)
+
   TTPPRED90 <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time90))
   TTPPRED30 <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time30))
   TTPAUC3 = sum(diff(Time90) * na.omit(dplyr::lead(TTPPRED90) + TTPPRED90)) / 2
   TTPAUC1 = sum(diff(Time30) * na.omit(dplyr::lead(TTPPRED30) + TTPPRED30)) / 2
+
+  TTPPRED14 <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time14))
+  TTPPRED28 <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time28))
+  TTPPRED56 <- Offset + Alpha * exp(-Beta * exp(-Gamma * Time56))
+  TTPAUC14 = sum(diff(Time14) * na.omit(dplyr::lead(TTPPRED14) + TTPPRED14)) / 2
+  TTPAUC28 = sum(diff(Time28) * na.omit(dplyr::lead(TTPPRED28) + TTPPRED28)) / 2
+  TTPAUC56 = sum(diff(Time56) * na.omit(dplyr::lead(TTPPRED56) + TTPPRED56)) / 2
 
 
   OffsetBASELINEEFF <- (BASELINETTP / REFBASELINETTP) ^ dE0dBLMEANTTP
@@ -192,6 +223,24 @@ makegompertzModelCurve <- function(
 
   Time <- c(Time,TIMETTPMAX50,TIMEEFFMAX50)
   TTPPRED<- c(TTPPRED,TTPMAX50,EEFFMAX50)
+
+  hazard_fn_auc1 <- function(t){ exp(-12 -0.0277*t + 2.47*log(t+1) +0.0260*((TTPAUC1-400)/10) ) }
+  Ftauc1 <- apply_survival_function(Time, hazard_fn_auc1, supplied_fn_type="h", fn_type_to_apply="F")
+
+  hazard_fn_auc3 <- function(t){ exp(-11.7 -0.0249*t + 2.35*log(t+1) +0.106*((TTPAUC3-1800)/100) ) }
+  Ftauc3 <- apply_survival_function(Time, hazard_fn_auc3, supplied_fn_type="h", fn_type_to_apply="F")
+
+  hazard_fn_auc14 <- function(t){ exp(-11.6 -0.0262*t + 2.37*log(t+1) +0.0661*((TTPAUC14-150)/10) ) }
+  Ftauc14 <- apply_survival_function(Time, hazard_fn_auc14, supplied_fn_type="h", fn_type_to_apply="F")
+
+  hazard_fn_auc28 <- function(t){ exp(-11.8 -0.0270*t + 2.45*log(t+1) +0.0353*((TTPAUC28-400)/10) ) }
+  Ftauc28 <- apply_survival_function(Time, hazard_fn_auc28, supplied_fn_type="h", fn_type_to_apply="F")
+
+  hazard_fn_auc56 <- function(t){ exp(-11.8 -0.0261*t + 2.42*log(t+1) +0.178*((TTPAUC56-1000)/100) ) }
+  Ftauc56 <- apply_survival_function(Time, hazard_fn_auc56, supplied_fn_type="h", fn_type_to_apply="F")
+
+
+
 
   df <- dplyr::data_frame(
     Time = Time,
@@ -212,6 +261,9 @@ makegompertzModelCurve <- function(
     REFBASELINETTP = REFBASELINETTP,
     TTPAUC1 = TTPAUC1,
     TTPAUC3 = TTPAUC3,
+    TTPAUC14 = TTPAUC14,
+    TTPAUC28 = TTPAUC28,
+    TTPAUC56 = TTPAUC56,
     OffsetTRT = OffsetTRT,
     AlphaTRT = AlphaTRT,
     BetaTRT = BetaTRT,
@@ -223,7 +275,12 @@ makegompertzModelCurve <- function(
     OffsetBASELINEEFF = OffsetBASELINEEFF,
     AlphaBASELINEEFF = AlphaBASELINEEFF,
     BetaBASELINEEFF = BetaBASELINEEFF,
-    GammaBASELINEEFF = GammaBASELINEEFF
+    GammaBASELINEEFF = GammaBASELINEEFF,
+    Ftauc1 = Ftauc1,
+    Ftauc3 = Ftauc3,
+    Ftauc14 = Ftauc14,
+    Ft = Ftauc28,
+    Ftauc56 = Ftauc56
 
   )
   arrange(df,Time)

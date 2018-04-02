@@ -15,12 +15,12 @@ gompertz_tab_module_ui <- function(id,
     shinyalert::useShinyalert(),
     fluidRow(
       column(
-        8,
+        12,
         #plotOutput(outputId = ns("gompertzcurve"))
-        plotlyOutput(outputId = ns("gompertzcurveplotly"))
+        plotlyOutput(outputId = ns("gompertzcurveplotly"),height="500px")
       ),
       column(
-        4,
+        12,
         selectInput(
           ns("trtcov"),
           label = "Treatments",
@@ -448,159 +448,159 @@ gompertz_tab_module <- function(input, output, session,
     lapply(other_sim_names(), function(nm) plotdata_func(nm))
   })
 
-  output$gompertzcurve <- renderPlot({
-    plotdata <- refcurve()
-    plotdata$TRT <- as.factor(plotdata$TRT)
-    gompertzdataparams <- plotdata[1, ]
-    backdata <- comparetourve()
-    backdata$TRT <- as.factor(backdata$TRT)
-    backdataparams <- backdata[1, ]
-    alldata <- rbind(backdata, plotdata)
-    alldataparams <- rbind(backdataparams, gompertzdataparams)
-    alldataparamsrepel1 <-
-      alldataparams[, c("TRT", "TIMEEFFMAX50", "EEFFMAX50", "TTP0", "TTPINF")]
-    alldataparamsrepel1$parameter <- "Eff(50)"
-    alldataparamsrepel2 <-
-      alldataparams[, c("TRT", "TIMETTPMAX50", "TTPMAX50", "TTP0", "TTPINF")]
-    alldataparamsrepel2$parameter <- "TTP(50)"
-    names(alldataparamsrepel1) <-
-      names(alldataparamsrepel2)  <-
-      c("TRT", "TIME", "PARAM", "TTP0", "TTPINF", "parameter")
-    alldataparamsrepel <-
-      rbind(alldataparamsrepel1, alldataparamsrepel2)
-    alldataparamsrepelinf <-
-      alldataparamsrepel[!duplicated(alldataparamsrepel$TRT), ]
-    p <-  ggplot(alldata, aes(Time, TTPPRED))
-    p <- p +
-      geom_hline(data = alldataparamsrepelinf,
-                 aes(yintercept = TTP0, linetype = TRT),
-                 show.legend = FALSE) +
-      geom_hline(data = alldataparamsrepelinf,
-                 aes(yintercept = TTPINF, linetype = TRT),
-                 show.legend = FALSE) +
-      geom_segment(
-        data = alldataparams,
-        aes(
-          x = TIMETTPMAX50,
-          y = TTP0,
-          linetype = TRT,
-          xend = TIMETTPMAX50,
-          yend = TTPMAX50
-        ),
-        show.legend = FALSE
-      ) +
-      geom_segment(
-        data = alldataparams,
-        aes(
-          x = TIMEEFFMAX50,
-          y = TTP0,
-          linetype = TRT,
-          xend = TIMEEFFMAX50,
-          yend = EEFFMAX50
-        ),
-        show.legend = FALSE
-      ) +
-      geom_segment(
-        data = alldataparams,
-        aes(
-          x = Time,
-          y = TTPMAX50,
-          linetype = TRT,
-          xend = TIMETTPMAX50,
-          yend = TTPMAX50
-        ),
-        show.legend = FALSE
-      ) +
-      geom_segment(
-        data = alldataparams,
-        aes(
-          x = Time,
-          y = EEFFMAX50,
-          linetype = TRT,
-          xend = TIMEEFFMAX50,
-          yend = EEFFMAX50
-        ),
-        show.legend = FALSE
-      ) +
-      geom_line(aes(linetype = TRT), size = 1.5, alpha = 0.5) +
-      geom_point(
-        data = alldataparamsrepel,
-        aes(
-          x = TIME,
-          y = PARAM,
-          shape = parameter,
-          fill = TRT
-        ),
-        size = 5,
-        alpha = 0.8
-      ) +
-      geom_label_repel(
-        data = alldataparamsrepel,
-        aes(
-          x = 0,
-          y = PARAM,
-          fill = TRT,
-          label = paste(round(PARAM, 1))
-        ),
-        direction = "y",
-        alpha = 0.6,
-        show.legend = FALSE
-      ) +
-
-      geom_label_repel(
-        data = alldataparamsrepel,
-        aes(
-          x = TIME,
-          y = TTP0 * 0.9,
-          fill = TRT,
-          label = paste(round(TIME, 1))
-        ),
-        direction = "both",
-        alpha = 0.6,
-        show.legend = FALSE
-      ) +
-
-      geom_label_repel(data = alldataparamsrepelinf, aes(
-        x = +Inf,
-        y = TTP0 * 1.05,
-        fill = TRT,
-        label = paste("TTP(0) =", round(TTP0, 1))
-      )) +
-      geom_label_repel(data = alldataparamsrepelinf, aes(
-        x = +Inf,
-        y = TTPINF * 1.05,
-        fill = TRT,
-        label = paste("TTP(\u221E) =", round(TTPINF, 1))
-      )) +
-
-
-      labs(
-        y = "TTP (t), Days",
-        x = "Days Post Start of Treatment",
-        linetype = "",
-        colour = "",
-        shape = ""
-      ) +
-      scale_shape_manual(values = c(23, 24),
-                         labels = c(expression(Eff[50]), expression(TTP[50]))) +
-      scale_fill_manual(values = c("darkgray", "white")) +
-
-      scale_x_continuous(breaks = c(0, 30, 60, 90, 120)) +
-      theme_bw(base_size = 20) +
-      guides(
-        linetype = guide_legend(order = 1),
-        shape = guide_legend(order = 2, reverse = TRUE),
-        fill = FALSE
-      ) +
-      coord_cartesian(xlim = c(0, 120)) +
-      theme(
-        legend.key.width  = unit(2, "cm"),
-        legend.position = "bottom",
-        legend.box = "vertical"
-      )
-
-    print(p)
-  })
+  # output$gompertzcurve <- renderPlot({
+  #   plotdata <- refcurve()
+  #   plotdata$TRT <- as.factor(plotdata$TRT)
+  #   gompertzdataparams <- plotdata[1, ]
+  #   backdata <- comparetourve()
+  #   backdata$TRT <- as.factor(backdata$TRT)
+  #   backdataparams <- backdata[1, ]
+  #   alldata <- rbind(backdata, plotdata)
+  #   alldataparams <- rbind(backdataparams, gompertzdataparams)
+  #   alldataparamsrepel1 <-
+  #     alldataparams[, c("TRT", "TIMEEFFMAX50", "EEFFMAX50", "TTP0", "TTPINF")]
+  #   alldataparamsrepel1$parameter <- "Eff(50)"
+  #   alldataparamsrepel2 <-
+  #     alldataparams[, c("TRT", "TIMETTPMAX50", "TTPMAX50", "TTP0", "TTPINF")]
+  #   alldataparamsrepel2$parameter <- "TTP(50)"
+  #   names(alldataparamsrepel1) <-
+  #     names(alldataparamsrepel2)  <-
+  #     c("TRT", "TIME", "PARAM", "TTP0", "TTPINF", "parameter")
+  #   alldataparamsrepel <-
+  #     rbind(alldataparamsrepel1, alldataparamsrepel2)
+  #   alldataparamsrepelinf <-
+  #     alldataparamsrepel[!duplicated(alldataparamsrepel$TRT), ]
+  #   p <-  ggplot(alldata, aes(Time, TTPPRED))
+  #   p <- p +
+  #     geom_hline(data = alldataparamsrepelinf,
+  #                aes(yintercept = TTP0, linetype = TRT),
+  #                show.legend = FALSE) +
+  #     geom_hline(data = alldataparamsrepelinf,
+  #                aes(yintercept = TTPINF, linetype = TRT),
+  #                show.legend = FALSE) +
+  #     geom_segment(
+  #       data = alldataparams,
+  #       aes(
+  #         x = TIMETTPMAX50,
+  #         y = TTP0,
+  #         linetype = TRT,
+  #         xend = TIMETTPMAX50,
+  #         yend = TTPMAX50
+  #       ),
+  #       show.legend = FALSE
+  #     ) +
+  #     geom_segment(
+  #       data = alldataparams,
+  #       aes(
+  #         x = TIMEEFFMAX50,
+  #         y = TTP0,
+  #         linetype = TRT,
+  #         xend = TIMEEFFMAX50,
+  #         yend = EEFFMAX50
+  #       ),
+  #       show.legend = FALSE
+  #     ) +
+  #     geom_segment(
+  #       data = alldataparams,
+  #       aes(
+  #         x = Time,
+  #         y = TTPMAX50,
+  #         linetype = TRT,
+  #         xend = TIMETTPMAX50,
+  #         yend = TTPMAX50
+  #       ),
+  #       show.legend = FALSE
+  #     ) +
+  #     geom_segment(
+  #       data = alldataparams,
+  #       aes(
+  #         x = Time,
+  #         y = EEFFMAX50,
+  #         linetype = TRT,
+  #         xend = TIMEEFFMAX50,
+  #         yend = EEFFMAX50
+  #       ),
+  #       show.legend = FALSE
+  #     ) +
+  #     geom_line(aes(linetype = TRT), size = 1.5, alpha = 0.5) +
+  #     geom_point(
+  #       data = alldataparamsrepel,
+  #       aes(
+  #         x = TIME,
+  #         y = PARAM,
+  #         shape = parameter,
+  #         fill = TRT
+  #       ),
+  #       size = 5,
+  #       alpha = 0.8
+  #     ) +
+  #     geom_label_repel(
+  #       data = alldataparamsrepel,
+  #       aes(
+  #         x = 0,
+  #         y = PARAM,
+  #         fill = TRT,
+  #         label = paste(round(PARAM, 1))
+  #       ),
+  #       direction = "y",
+  #       alpha = 0.6,
+  #       show.legend = FALSE
+  #     ) +
+  #
+  #     geom_label_repel(
+  #       data = alldataparamsrepel,
+  #       aes(
+  #         x = TIME,
+  #         y = TTP0 * 0.9,
+  #         fill = TRT,
+  #         label = paste(round(TIME, 1))
+  #       ),
+  #       direction = "both",
+  #       alpha = 0.6,
+  #       show.legend = FALSE
+  #     ) +
+  #
+  #     geom_label_repel(data = alldataparamsrepelinf, aes(
+  #       x = +Inf,
+  #       y = TTP0 * 1.05,
+  #       fill = TRT,
+  #       label = paste("TTP(0) =", round(TTP0, 1))
+  #     )) +
+  #     geom_label_repel(data = alldataparamsrepelinf, aes(
+  #       x = +Inf,
+  #       y = TTPINF * 1.05,
+  #       fill = TRT,
+  #       label = paste("TTP(\u221E) =", round(TTPINF, 1))
+  #     )) +
+  #
+  #
+  #     labs(
+  #       y = "TTP (t), Days",
+  #       x = "Days Post Start of Treatment",
+  #       linetype = "",
+  #       colour = "",
+  #       shape = ""
+  #     ) +
+  #     scale_shape_manual(values = c(23, 24),
+  #                        labels = c(expression(Eff[50]), expression(TTP[50]))) +
+  #     scale_fill_manual(values = c("darkgray", "white")) +
+  #
+  #     scale_x_continuous(breaks = c(0, 30, 60, 90, 120)) +
+  #     theme_bw(base_size = 20) +
+  #     guides(
+  #       linetype = guide_legend(order = 1),
+  #       shape = guide_legend(order = 2, reverse = TRUE),
+  #       fill = FALSE
+  #     ) +
+  #     coord_cartesian(xlim = c(0, 120)) +
+  #     theme(
+  #       legend.key.width  = unit(2, "cm"),
+  #       legend.position = "bottom",
+  #       legend.box = "vertical"
+  #     )
+  #
+  #   print(p)
+  # })
 
   output$gompertzcurveplotly <- renderPlotly({
     plotdata <- refcurve()
@@ -763,15 +763,60 @@ gompertz_tab_module <- function(input, output, session,
           x = 0.5
         )
       )
+    p2 <-
+      plot_ly(
+    alldata,
+    x = ~ Time,
+    y = ~ Ft,
+    type = 'scatter',
+    mode = 'lines',
+    name = 'F(t)-AUC28',
+    legendgroup = "F(t)-AUC28",
+    line = list(color = toRGB("blue", alpha = 0.2), width = 5),
+    linetype =  ~ TRT,
+    color = I('black'),
+    hoverinfo = 'text',
+    text = ~ paste(
+      "</br> Treatment: ",
+      TRT,
+      '</br> Time: ',
+      round(Time, 1),
+      '</br> F(t): ',
+      round(Ft, 1)
+    )
+  ) %>%
+  layout(
+    xaxis = list(
+      title = 'Days Post Start of Treatment',
+      ticks = "outside",
+      autotick = TRUE,
+      ticklen = 5,
+      range = c(-2, 121),
+      gridcolor = toRGB("gray50"),
+      showline = TRUE
+    ) ,
+    yaxis = list (
+      title = 'F(t), Probability'               ,
+      ticks = "outside",
+      autotick = TRUE,
+      ticklen = 5,
+      gridcolor = toRGB("gray50"),
+      showline = TRUE
+    ) ,
+    legend = list(
+      orientation = 'h',
+      xanchor = "center",
+      y = -0.25,
+      x = 0.5
+    )
+  )
+subplot(p, p2,nrows = 2,shareX = TRUE,shareY = FALSE,titleX = TRUE,titleY = TRUE)
 
-
-
-    print(p)
   })
 
   cols_table_1 <- c("TRT", "BASELINETTP", "Offset", "Alpha", "Beta", "Gamma")
   cols_table_2 <- c("TRT", "TTP0", "TTPMAX50", "EEFFMAX50", "TTPINF", "DeltaTTP",
-                    "TIMETTPMAX50", "TIMEEFFMAX50", "TTPAUC1", "TTPAUC3")
+                    "TIMETTPMAX50", "TIMEEFFMAX50", "TTPAUC1", "TTPAUC3","TTPAUC14","TTPAUC28","TTPAUC56")
 
   table_subset <- function(cols_to_keep = c(), first_row_only = TRUE) {
     # merge curves into 1 list

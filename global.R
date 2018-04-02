@@ -6,6 +6,7 @@ library(htmltools)
 library(dplyr)
 library(shinyalert)
 library(plotly)
+library(numDeriv)
 
 source("modules/plots_tab.R")
 source("modules/gompertz_tab.R")
