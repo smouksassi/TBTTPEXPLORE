@@ -14,7 +14,7 @@ tvGammaDefault <- 0.04946
 BASELINETTPDefault <- 6.295
 treatments_default <- c(
   "TMC207",
-  "Placebo (Background Regimen)",
+  "Placebo",
   "MICRONUTRIENT/RHZE",
   "PA-824/PZ/M",
   "PHZE",
@@ -22,8 +22,9 @@ treatments_default <- c(
   "RHZE"
 )
 treatment_descriptions <- list(
-  "Placebo (Background Regimen)" = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
-  "Live Simulation" = "View the current set of parameters"
+  "Placebo" = "Placebo (Background regimen) consisted of preferred five-drug, second-line anti-TB background regimen (e.g., aminoglycosides, fluoroquinolones, ethionamide or protionamide, pyrazinamide, ethambutol, cycloserine or terizidone)",
+  "Live Simulation" = "View the current set of parameters",
+  "RHZE" = "RHZE, Reference treatment used in the model. Standard of care regimen including Rifampin, Isoniazid, Pyrazinamide and Ethambutol."
 )
 
 gompertz_default_args <- list(
@@ -77,10 +78,6 @@ makegompertzModelCurve <- function(
   dAlphadTRTSIM = gompertz_default_args$dAlphadTRTSIM,
   dBetadTRTSIM = gompertz_default_args$dBetadTRTSIM,
   dGamdTRTSIM = gompertz_default_args$dGamdTRTSIM) {
-
-  if (TRT == "Placebo (Background Regimen)") {
-    TRT <- "Placebo"
-  }
 
   BASELINEINFO <-
     data.frame(
@@ -219,7 +216,6 @@ makegompertzModelCurve <- function(
   AlphaTRT <- Alpha / (tvAlpha * AlphaBASELINEEFF)
   BetaTRT  <- Beta / (tvBeta * BetaBASELINEEFF)
   GammaTRT <- Gamma / (tvGamma * GammaBASELINEEFF)
-  TRT <- ifelse(TRT == "Placebo", "Placebo (Background Regimen)", TRT)
 
   Time <- c(Time,TIMETTPMAX50,TIMEEFFMAX50)
   TTPPRED<- c(TTPPRED,TTPMAX50,EEFFMAX50)

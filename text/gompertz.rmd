@@ -8,7 +8,7 @@ $${\text{TTP}(t)=Offset +\alpha*\exp\left[-\beta*\exp\left(-\gamma*\text{Time}\r
 Where $Offset$ is the theoretical lower asymptote, $\alpha$ is the upper asymptote, $\beta$ is a shape parameter controlling where the curve starts and $\gamma$ is a shape parameter controlling the steepness of the curve. On this curve we are interested in several quantities of interest illustrated in this plot:
 
 <div style="text-align: center;">
-![](./gompertzexplain1000_600.png){ width=70% }
+![](./gompertzexplain1400_900.png){ width=70% }
 <div style="text-align: center;">
 
 The plot also includes two points of interest:   

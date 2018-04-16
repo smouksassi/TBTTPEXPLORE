@@ -19,8 +19,11 @@ gompertz_tab_module_ui <- function(id,
         #plotOutput(outputId = ns("gompertzcurve"))
         plotlyOutput(outputId = ns("gompertzcurveplotly"),height="500px")
       ),
+      column(12,
+                 helpText("The legend Items are interactive and plot elements can be toggled on/off by pressing on the appropriate item.")
+      ),
       column(
-        12,
+        6,
         selectInput(
           ns("trtcov"),
           label = "Treatments",
@@ -39,14 +42,17 @@ gompertz_tab_module_ui <- function(id,
               helpText(treatment_descriptions_[[treatment]])
             )
           }
+        )
         ),
+      column(
+        6,
         selectInput(
           ns("trtcovbackground"),
           label = "Compare to:",
           choices = list(
             "Default Treatments" = treatments_default_
           ),
-          selected = "Placebo (Background Regimen)"
+          selected = "Placebo"
         ),
         lapply(
           names(treatment_descriptions_),
@@ -60,14 +66,11 @@ gompertz_tab_module_ui <- function(id,
         )
       )
     ),
-    fluidRow(
-      column(12, hr())
-    ),
-    fluidRow(
+   fluidRow(
       column(
         12,
-        h2("Custom Simulation")
-      )
+        h2("Custom Simulation"),
+        helpText("Please Select Live Simulation in the Treatments dropdown. Then the simulated curve will update live according to the sliders selections.")      )
     ),
     fluidRow(
       column(
@@ -213,7 +216,7 @@ gompertz_tab_module_ui <- function(id,
         )),
         actionButton(
           ns("create_custom_sim"),
-          "Create Custom Simulation",
+          "Save Custom Simulation",
           class = "btn-primary"
         ),
         actionButton(
@@ -305,6 +308,7 @@ gompertz_tab_module <- function(input, output, session,
   output$existing_name <- renderText({
     input[["custom_sim_name"]]
   })
+
 
   observeEvent(custom_sims(), {
     cond <- length(custom_sims()) > 0
@@ -448,159 +452,6 @@ gompertz_tab_module <- function(input, output, session,
     lapply(other_sim_names(), function(nm) plotdata_func(nm))
   })
 
-  # output$gompertzcurve <- renderPlot({
-  #   plotdata <- refcurve()
-  #   plotdata$TRT <- as.factor(plotdata$TRT)
-  #   gompertzdataparams <- plotdata[1, ]
-  #   backdata <- comparetourve()
-  #   backdata$TRT <- as.factor(backdata$TRT)
-  #   backdataparams <- backdata[1, ]
-  #   alldata <- rbind(backdata, plotdata)
-  #   alldataparams <- rbind(backdataparams, gompertzdataparams)
-  #   alldataparamsrepel1 <-
-  #     alldataparams[, c("TRT", "TIMEEFFMAX50", "EEFFMAX50", "TTP0", "TTPINF")]
-  #   alldataparamsrepel1$parameter <- "Eff(50)"
-  #   alldataparamsrepel2 <-
-  #     alldataparams[, c("TRT", "TIMETTPMAX50", "TTPMAX50", "TTP0", "TTPINF")]
-  #   alldataparamsrepel2$parameter <- "TTP(50)"
-  #   names(alldataparamsrepel1) <-
-  #     names(alldataparamsrepel2)  <-
-  #     c("TRT", "TIME", "PARAM", "TTP0", "TTPINF", "parameter")
-  #   alldataparamsrepel <-
-  #     rbind(alldataparamsrepel1, alldataparamsrepel2)
-  #   alldataparamsrepelinf <-
-  #     alldataparamsrepel[!duplicated(alldataparamsrepel$TRT), ]
-  #   p <-  ggplot(alldata, aes(Time, TTPPRED))
-  #   p <- p +
-  #     geom_hline(data = alldataparamsrepelinf,
-  #                aes(yintercept = TTP0, linetype = TRT),
-  #                show.legend = FALSE) +
-  #     geom_hline(data = alldataparamsrepelinf,
-  #                aes(yintercept = TTPINF, linetype = TRT),
-  #                show.legend = FALSE) +
-  #     geom_segment(
-  #       data = alldataparams,
-  #       aes(
-  #         x = TIMETTPMAX50,
-  #         y = TTP0,
-  #         linetype = TRT,
-  #         xend = TIMETTPMAX50,
-  #         yend = TTPMAX50
-  #       ),
-  #       show.legend = FALSE
-  #     ) +
-  #     geom_segment(
-  #       data = alldataparams,
-  #       aes(
-  #         x = TIMEEFFMAX50,
-  #         y = TTP0,
-  #         linetype = TRT,
-  #         xend = TIMEEFFMAX50,
-  #         yend = EEFFMAX50
-  #       ),
-  #       show.legend = FALSE
-  #     ) +
-  #     geom_segment(
-  #       data = alldataparams,
-  #       aes(
-  #         x = Time,
-  #         y = TTPMAX50,
-  #         linetype = TRT,
-  #         xend = TIMETTPMAX50,
-  #         yend = TTPMAX50
-  #       ),
-  #       show.legend = FALSE
-  #     ) +
-  #     geom_segment(
-  #       data = alldataparams,
-  #       aes(
-  #         x = Time,
-  #         y = EEFFMAX50,
-  #         linetype = TRT,
-  #         xend = TIMEEFFMAX50,
-  #         yend = EEFFMAX50
-  #       ),
-  #       show.legend = FALSE
-  #     ) +
-  #     geom_line(aes(linetype = TRT), size = 1.5, alpha = 0.5) +
-  #     geom_point(
-  #       data = alldataparamsrepel,
-  #       aes(
-  #         x = TIME,
-  #         y = PARAM,
-  #         shape = parameter,
-  #         fill = TRT
-  #       ),
-  #       size = 5,
-  #       alpha = 0.8
-  #     ) +
-  #     geom_label_repel(
-  #       data = alldataparamsrepel,
-  #       aes(
-  #         x = 0,
-  #         y = PARAM,
-  #         fill = TRT,
-  #         label = paste(round(PARAM, 1))
-  #       ),
-  #       direction = "y",
-  #       alpha = 0.6,
-  #       show.legend = FALSE
-  #     ) +
-  #
-  #     geom_label_repel(
-  #       data = alldataparamsrepel,
-  #       aes(
-  #         x = TIME,
-  #         y = TTP0 * 0.9,
-  #         fill = TRT,
-  #         label = paste(round(TIME, 1))
-  #       ),
-  #       direction = "both",
-  #       alpha = 0.6,
-  #       show.legend = FALSE
-  #     ) +
-  #
-  #     geom_label_repel(data = alldataparamsrepelinf, aes(
-  #       x = +Inf,
-  #       y = TTP0 * 1.05,
-  #       fill = TRT,
-  #       label = paste("TTP(0) =", round(TTP0, 1))
-  #     )) +
-  #     geom_label_repel(data = alldataparamsrepelinf, aes(
-  #       x = +Inf,
-  #       y = TTPINF * 1.05,
-  #       fill = TRT,
-  #       label = paste("TTP(\u221E) =", round(TTPINF, 1))
-  #     )) +
-  #
-  #
-  #     labs(
-  #       y = "TTP (t), Days",
-  #       x = "Days Post Start of Treatment",
-  #       linetype = "",
-  #       colour = "",
-  #       shape = ""
-  #     ) +
-  #     scale_shape_manual(values = c(23, 24),
-  #                        labels = c(expression(Eff[50]), expression(TTP[50]))) +
-  #     scale_fill_manual(values = c("darkgray", "white")) +
-  #
-  #     scale_x_continuous(breaks = c(0, 30, 60, 90, 120)) +
-  #     theme_bw(base_size = 20) +
-  #     guides(
-  #       linetype = guide_legend(order = 1),
-  #       shape = guide_legend(order = 2, reverse = TRUE),
-  #       fill = FALSE
-  #     ) +
-  #     coord_cartesian(xlim = c(0, 120)) +
-  #     theme(
-  #       legend.key.width  = unit(2, "cm"),
-  #       legend.position = "bottom",
-  #       legend.box = "vertical"
-  #     )
-  #
-  #   print(p)
-  # })
 
   output$gompertzcurveplotly <- renderPlotly({
     plotdata <- refcurve()
@@ -627,6 +478,7 @@ gompertz_tab_module <- function(input, output, session,
       group_by(TRT) %>%
       filter(Time == TIMEEFFMAX50)
 
+    alldataauc<- alldata[alldata$Time<=28,]
 
     p <-
       plot_ly(
@@ -649,6 +501,19 @@ gompertz_tab_module <- function(input, output, session,
           '</br> TTP(t): ',
           round(TTPPRED, 1)
         )
+      ) %>%
+      add_ribbons(
+        data = alldataauc,
+        x =  ~ Time ,
+        ymin = 0,
+        ymax =  ~ TTPPRED,
+        name = 'AUC28',
+        legendgroup = "AUC<sub>28</sub>",
+        fillcolor = ~ TRT ,
+        line = list(color = 'blue'),
+        linetype =  ~ TRT,
+        opacity = 0.2,
+        hoverinfo = 'none'
       ) %>%
       add_markers(
         data = pointsdata2 ,
@@ -707,7 +572,7 @@ gompertz_tab_module <- function(input, output, session,
           size = 20,
           symbol = "diamond"
         ),
-        name = "EFF<sub>50</sub> ",
+        name = "EFF<sub>50</sub>",
         legendgroup = "EFF<sub>50</sub>",
         inherit = FALSE,
         hoverinfo = 'text',
@@ -754,14 +619,14 @@ gompertz_tab_module <- function(input, output, session,
           autotick = TRUE,
           ticklen = 5,
           gridcolor = toRGB("gray50"),
-          showline = TRUE
-        ) ,
-        legend = list(
-          orientation = 'h',
-          xanchor = "center",
-          y = -0.25,
-          x = 0.5
-        )
+          showline = TRUE)
+        # ) ,
+        # legend = list(
+        #   orientation = 'h',
+        #   xanchor = "center",
+        #   y = -0.25,
+        #   x = 0.5
+        # )
       )
     p2 <-
       plot_ly(
