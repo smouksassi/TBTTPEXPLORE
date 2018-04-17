@@ -85,3 +85,7 @@ body > .container > .tab-content {
   color: red;
   margin-bottom: 15px;
 }
+
+.error-msg {
+  color: red;
+}

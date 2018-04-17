@@ -70,7 +70,9 @@ gompertz_tab_module_ui <- function(id,
       column(
         12,
         h2("Custom Simulation"),
-        helpText("Please Select Live Simulation in the Treatments dropdown. Then the simulated curve will update live according to the sliders selections.")      )
+        helpText("Please Select Live Simulation in the Treatments dropdown. Then the simulated curve will update live according to the sliders selections.",
+                 div(class = "error-msg", textOutput(ns("highttpwarning"))))
+      )
     ),
     fluidRow(
       column(
@@ -267,6 +269,7 @@ gompertz_tab_module <- function(input, output, session,
                                 BASELINETTP_ = BASELINETTPDefault,
                                 treatments_default_ = treatments_default) {
 
+  HIGH_TTP_WARNING_THRESHOLD <- 42
 
   custom_sims <- reactiveVal(list())
 
@@ -453,15 +456,31 @@ gompertz_tab_module <- function(input, output, session,
   })
 
 
-  output$gompertzcurveplotly <- renderPlotly({
+  plot_data <- reactive({
     plotdata <- refcurve()
     plotdata$TRT <- as.factor(plotdata$TRT)
-    gompertzdataparams <- plotdata[1,]
     backdata <- comparetourve()
     backdata$TRT <- as.factor(backdata$TRT)
-    backdataparams <- backdata[1,]
     alldata <- rbind(backdata, plotdata)
+    alldata
+  })
+
+  # Show warning if TTP curve goes beyond a threshold
+  output$highttpwarning <- renderText({
+    req(plot_data())
+    if (max(plot_data()$TTPPRED) > HIGH_TTP_WARNING_THRESHOLD) {
+      paste0(
+        "Warning: your selection resulted in TTP(t) simulations above ",
+        HIGH_TTP_WARNING_THRESHOLD,
+        " Days which are typically censored for observed real data."
+      )
+    }
+  })
+
+  output$gompertzcurveplotly <- renderPlotly({
+    alldata <- plot_data()
     #alldata <-makegompertzModelCurve()
+
     alldata <- alldata %>%
       group_by(TRT) %>%
       mutate(
