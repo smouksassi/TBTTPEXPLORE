@@ -17,7 +17,7 @@ gompertz_tab_module_ui <- function(id,
       column(
         12,
         #plotOutput(outputId = ns("gompertzcurve"))
-        plotlyOutput(outputId = ns("gompertzcurveplotly"),height="500px")
+        plotlyOutput(outputId = ns("gompertzcurveplotly"),height="600px")
       ),
       column(12,
                  helpText("The legend Items are interactive and plot elements can be toggled on/off by pressing on the appropriate item.")
