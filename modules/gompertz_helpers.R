@@ -238,7 +238,7 @@ makegompertzModelCurve <- function(
 
 
 
-  df <- dplyr::data_frame(
+  df <- dplyr::tibble(
     Time = Time,
     TTPPRED = TTPPRED,
     TIMETTPMAX50 = TIMETTPMAX50,

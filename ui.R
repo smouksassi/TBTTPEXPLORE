@@ -22,7 +22,7 @@ tagList(
     tabPanel(
       "Plots",
       value = "plots",
-      icon = icon("bar-chart"),
+      icon = icon("chart-bar"),
       class = "fade in",
 
       plots_tab_module_ui("plots")
@@ -31,7 +31,7 @@ tagList(
     tabPanel(
       "Gompertz Model",
       value = "plots",
-      icon = icon("line-chart"),
+      icon = icon("chart-line"),
       class = "fade in",
 
       gompertz_tab_module_ui("model")

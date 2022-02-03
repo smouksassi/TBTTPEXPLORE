@@ -12,7 +12,7 @@ gompertz_tab_module_ui <- function(id,
   ns <- NS(id)
 
   tagList(
-    shinyalert::useShinyalert(),
+    #shinyalert::useShinyalert(),
     fluidRow(
       column(
         12,
